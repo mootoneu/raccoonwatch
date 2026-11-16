@@ -148,5 +148,5 @@ Exit criterion: the user reviews and approves (or requests changes to) these doc
 ## 5. Current status
 
 - [x] Plan written and committed.
-- [ ] Phase 0 — Documentation and Specification — to be executed next, then paused for review.
+- [x] Phase 0 — Documentation and Specification — executed; awaiting user review.
 - [ ] Phases 1–9 — pending approval.
