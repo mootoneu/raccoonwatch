@@ -157,4 +157,5 @@ Exit criterion: the user reviews and approves (or requests changes to) these doc
 - [x] Phase 6 — Terminal-like output viewer — implemented.
 - [x] Phase 7 — Autostart features — implemented.
 - [x] Phase 8 — Polish and quality — implemented.
-- [ ] Phase 9 — Release — pending.
+- [x] Phase 9 — Release — implemented and verified (framework-dependent and self-contained publishes).
+- [ ] All phases complete; ready for final review.

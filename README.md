@@ -60,11 +60,15 @@ dotnet run --project src/raccoonwatch/raccoonwatch.csproj
 dotnet test
 ```
 
-Publishing (planned, Phase 9):
+Publishing:
 
 ```powershell
-./scripts/publish.ps1
+./scripts/publish.ps1                              # framework-dependent single file
+./scripts/publish.ps1 -SelfContained -Version 1.0.0 # self-contained single file + zip
 ```
+
+Output goes to `artifacts/publish/<runtime>/raccoonwatch.exe`; a zip is written to
+`artifacts/raccoonwatch-<version>-<runtime>.zip` unless `-SkipZip` is used.
 
 ## Assets
 
