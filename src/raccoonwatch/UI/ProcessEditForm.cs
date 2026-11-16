@@ -147,7 +147,7 @@ public sealed class ProcessEditForm : Form
 
     private static Button CreateBrowseButton(EventHandler onClick)
     {
-        var button = new Button { Text = "…", Width = 32, Height = 23 };
+        var button = new Button { Text = "…", AccessibleName = "Browse", Width = 32, Height = 23 };
         button.Click += onClick;
         return button;
     }

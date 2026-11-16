@@ -118,6 +118,24 @@ public sealed class TrayApplicationContext : ApplicationContext
 
     public async Task ExitApplicationAsync()
     {
+        if (_settings.Settings.StopProcessesOnExit)
+        {
+            var running = _settings.Settings.Processes
+                .Count(p => IsActive(_processes.GetState(p.Id).Status));
+            if (running > 0)
+            {
+                var answer = MessageBox.Show(
+                    $"Exiting raccoonwatch will stop {running} running process(es). Continue?",
+                    "raccoonwatch",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
+                if (answer != DialogResult.Yes)
+                {
+                    return;
+                }
+            }
+        }
+
         try
         {
             await _controller.ExitAsync();
@@ -155,6 +173,9 @@ public sealed class TrayApplicationContext : ApplicationContext
 
         base.Dispose(disposing);
     }
+
+    private static bool IsActive(ProcessStatus status) =>
+        status is ProcessStatus.Starting or ProcessStatus.Running or ProcessStatus.Stopping;
 
     private static Icon LoadIcon()
     {

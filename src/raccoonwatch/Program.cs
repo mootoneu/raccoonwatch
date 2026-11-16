@@ -28,6 +28,22 @@ internal static class Program
         ConfigureServices(services, instanceGuard);
         using var provider = services.BuildServiceProvider();
 
+        var startupLogger = provider.GetRequiredService<ILogger<ProgramLog>>();
+        Application.ThreadException += (_, e) =>
+            startupLogger.LogError(e.Exception, "Unhandled UI exception.");
+        AppDomain.CurrentDomain.UnhandledException += (_, e) =>
+        {
+            if (e.ExceptionObject is Exception exception)
+            {
+                startupLogger.LogCritical(exception, "Unhandled domain exception.");
+            }
+        };
+        TaskScheduler.UnobservedTaskException += (_, e) =>
+        {
+            startupLogger.LogError(e.Exception, "Unobserved task exception.");
+            e.SetObserved();
+        };
+
         var loggingOptions = provider.GetRequiredService<LoggingOptions>();
         var settings = provider.GetRequiredService<ISettingsService>();
         settings.Load();
@@ -70,3 +86,5 @@ internal static class Program
         services.AddTransient<SettingsForm>();
     }
 }
+
+internal sealed class ProgramLog;

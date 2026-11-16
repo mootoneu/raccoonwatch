@@ -132,6 +132,7 @@ public sealed class ManageProcessesForm : Form
         var button = new Button
         {
             Text = text,
+            AccessibleName = text,
             Width = width,
             Height = 32,
             Margin = new Padding(4, 0, 0, 0)

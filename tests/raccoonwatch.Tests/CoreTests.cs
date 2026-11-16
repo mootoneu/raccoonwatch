@@ -90,6 +90,25 @@ public sealed class CoreTests : IDisposable
     }
 
     [Fact]
+    public void SettingsService_ClampsRangesAndFallsBackForInvalidLogLevel()
+    {
+        var path = Path.Combine(_directory, "settings.json");
+        File.WriteAllText(path, """
+            {"schemaVersion":1,"processes":[],"pollIntervalMs":10,
+             "outputHistoryLines":1,"logLevel":"nonsense"}
+            """);
+
+        var store = new JsonSettingsStore(NullLogger<JsonSettingsStore>.Instance, path);
+        var service = new SettingsService(store, NullLogger<SettingsService>.Instance);
+        service.Load();
+
+        Assert.Equal(250, service.Settings.PollIntervalMs);
+        Assert.Equal(100, service.Settings.OutputHistoryLines);
+        Assert.Equal("Information", service.Settings.LogLevel);
+        Assert.False(File.Exists(path + ".tmp"));
+    }
+
+    [Fact]
     public void SettingsService_AddsUpdatesAndDeletesDefinitions()
     {
         var path = Path.Combine(_directory, "settings.json");

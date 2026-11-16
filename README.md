@@ -8,7 +8,7 @@ A terminal-like window lets the user inspect a process's output, and both the ap
 individual processes can be configured to start automatically with Windows / with
 raccoonwatch.
 
-> **Status:** Phase 0 approved. Phases 1–7 are implemented; development continues.
+> **Status:** Phase 0 approved. Phases 1–8 are implemented; release packaging remains.
 > See [`PLAN.md`](PLAN.md) for the roadmap and
 > [`docs/specification.md`](docs/specification.md) for the requirements.
 
@@ -40,7 +40,8 @@ raccoonwatch.
 - Settings dialog with Windows-autostart toggle, path-mismatch warning and one-click repair.
 - Per-process autostart with ordered startup, single-instance enforcement and rolling logs.
 
-Still to come: final QA (Phase 8) and publishing (Phase 9).
+A manual QA checklist is available in [`docs/test-checklist.md`](docs/test-checklist.md).
+Still to come: single-file publishing (Phase 9).
 
 ## Documentation
 

@@ -156,4 +156,5 @@ Exit criterion: the user reviews and approves (or requests changes to) these doc
 - [x] Phase 5 — Process management UI — implemented.
 - [x] Phase 6 — Terminal-like output viewer — implemented.
 - [x] Phase 7 — Autostart features — implemented.
-- [ ] Phases 8–9 — pending.
+- [x] Phase 8 — Polish and quality — implemented.
+- [ ] Phase 9 — Release — pending.

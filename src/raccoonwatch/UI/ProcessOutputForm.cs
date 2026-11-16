@@ -125,7 +125,7 @@ public sealed class ProcessOutputForm : Form
 
     private static Button CreateButton(string text, EventHandler onClick)
     {
-        var button = new Button { Text = text, Width = 80, Height = 30 };
+        var button = new Button { Text = text, AccessibleName = text, Width = 80, Height = 30 };
         button.Click += onClick;
         return button;
     }
