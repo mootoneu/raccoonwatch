@@ -193,6 +193,29 @@ public sealed class CoreTests : IDisposable
     }
 
     [Fact]
+    public void AnsiTextParser_InterpretsForegroundAndReset()
+    {
+        var segments = AnsiTextParser.Parse("\u001b[31mred\u001b[0m normal");
+
+        Assert.Equal(2, segments.Count);
+        Assert.Equal("red", segments[0].Text);
+        Assert.Equal(System.Drawing.Color.FromArgb(205, 49, 49), segments[0].Foreground);
+        Assert.Equal(" normal", segments[1].Text);
+        Assert.Null(segments[1].Foreground);
+    }
+
+    [Fact]
+    public void AnsiTextParser_IgnoresNonSgrSequences()
+    {
+        var segments = AnsiTextParser.Parse("\u001b[2Kcleared\u001b[1;32mgreen");
+
+        Assert.Equal("cleared", segments[0].Text);
+        Assert.Null(segments[0].Foreground);
+        Assert.Equal("green", segments[1].Text);
+        Assert.Equal(System.Drawing.Color.FromArgb(13, 188, 121), segments[1].Foreground);
+    }
+
+    [Fact]
     public void WindowsRunRegistry_FormatsQuotedValue()
     {
         Assert.Equal("\"C:\\Program Files\\raccoonwatch\\raccoonwatch.exe\"",
