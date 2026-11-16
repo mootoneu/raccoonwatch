@@ -148,5 +148,9 @@ Exit criterion: the user reviews and approves (or requests changes to) these doc
 ## 5. Current status
 
 - [x] Plan written and committed.
-- [x] Phase 0 — Documentation and Specification — executed; awaiting user review.
-- [ ] Phases 1–9 — pending approval.
+- [x] Phase 0 — Documentation and Specification — executed and approved.
+- [x] Phase 1 — Solution scaffolding and core infrastructure — implemented.
+- [x] Phase 2 — Domain models and settings persistence — implemented.
+- [x] Phase 3 — Process management engine — implemented.
+- [x] Phase 4 — Tray UI and live monitoring — implemented; awaiting code review.
+- [ ] Phases 5–9 — pending.

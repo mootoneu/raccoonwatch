@@ -8,11 +8,11 @@ A terminal-like window lets the user inspect a process's output, and both the ap
 individual processes can be configured to start automatically with Windows / with
 raccoonwatch.
 
-> **Status:** Phase 0 (Documentation and Specification) is complete and awaiting review.
-> No implementation code has been written yet. See [`PLAN.md`](PLAN.md) for the full
-> roadmap and [`docs/specification.md`](docs/specification.md) for the requirements.
+> **Status:** Phase 0 approved. Phases 1–4 are implemented and awaiting code review.
+> See [`PLAN.md`](PLAN.md) for the roadmap and
+> [`docs/specification.md`](docs/specification.md) for the requirements.
 
-## Features (planned)
+## Features
 
 - Lives in the notification area; no main window unless requested.
 - Right-click menu lists every configured process with status (Running, Stopped,
@@ -27,6 +27,21 @@ raccoonwatch.
 - Settings persisted as JSON in `%APPDATA%\raccoonwatch\settings.json`.
 - Single instance; double-clicking the tray icon opens the process manager.
 
+## What works now (Phases 1–4)
+
+- Tray icon with dynamic right-click menu listing every configured process and status.
+- Start / Stop / Restart / Start All / Stop All from the tray.
+- Live status tracking (Running, Stopped, Starting, Stopping, Exited, Failed), PID,
+  uptime, exit code, last error and balloon notifications on failure.
+- JSON settings persistence with atomic writes and corrupt-file recovery.
+- Process engine for `.exe`, `.cmd`/`.bat` and `.ps1` with redirected stdout/stderr.
+- Read-only process dashboard, terminal-style output viewer and settings dialog
+  (including the Windows-autostart toggle).
+- Single-instance enforcement and rolling file logs.
+
+Still to come: full Add/Edit/Delete UI (Phase 5), ANSI/output enhancements (Phase 6),
+autostart polish (Phase 7), final QA (Phase 8) and publishing (Phase 9).
+
 ## Documentation
 
 - [Implementation plan](PLAN.md)
@@ -35,7 +50,7 @@ raccoonwatch.
 - [Data model, settings schema and state machine](docs/data-model.md)
 - [UI design](docs/ui-design.md)
 
-## Build and run (planned, Phase 1+)
+## Build and run
 
 ```powershell
 dotnet restore
@@ -56,9 +71,9 @@ The tray and form icon will be generated from `raccoonwatch_icon_64x64.png` and
 `raccoonwatch_icon_1254x1254.png` (provided in the repository root) into
 `assets/raccoonwatch.ico` during Phase 1.
 
-## Review checklist / open questions for Phase 0
+## Phase 0 decisions (approved)
 
-Please confirm or adjust the following during review:
+The following design decisions were reviewed and approved:
 
 1. Windows Forms is the proposed UI framework (native tray support). Acceptable, or
    prefer WPF / another toolkit?
