@@ -90,6 +90,41 @@ public sealed class CoreTests : IDisposable
     }
 
     [Fact]
+    public void SettingsService_AddsUpdatesAndDeletesDefinitions()
+    {
+        var path = Path.Combine(_directory, "settings.json");
+        var store = new JsonSettingsStore(NullLogger<JsonSettingsStore>.Instance, path);
+        var service = new SettingsService(store, NullLogger<SettingsService>.Instance);
+        service.Load();
+
+        var first = new ProcessDefinition
+        {
+            DisplayName = "First",
+            Kind = ProcessKind.Executable,
+            CommandPath = @"C:\tools\first.exe",
+            StartOrder = 1
+        };
+        var second = first with { Id = Guid.NewGuid(), DisplayName = "Second", StartOrder = 2 };
+
+        service.AddOrUpdate(first);
+        service.AddOrUpdate(second);
+        Assert.Equal(2, service.Settings.Processes.Count);
+
+        service.AddOrUpdate(first with { DisplayName = "First renamed", AutoStartOnLaunch = true });
+        var renamed = Assert.Single(service.Settings.Processes, p => p.Id == first.Id);
+        Assert.Equal("First renamed", renamed.DisplayName);
+        Assert.True(renamed.AutoStartOnLaunch);
+
+        service.Delete(second.Id);
+        Assert.Single(service.Settings.Processes);
+        Assert.DoesNotContain(service.Settings.Processes, p => p.Id == second.Id);
+
+        var reloaded = store.Load();
+        Assert.Single(reloaded.Processes);
+        Assert.Equal("First renamed", reloaded.Processes[0].DisplayName);
+    }
+
+    [Fact]
     public void ProcessLauncher_BuildsCommandLinesPerKind()
     {
         var executable = new ProcessDefinition

@@ -5,8 +5,7 @@ using Raccoonwatch.Services;
 namespace Raccoonwatch.UI;
 
 /// <summary>
-/// Tray-side process dashboard. Add/Edit/Delete arrive in Phase 5; this view already
-/// supports live status, start/stop/restart and opening the output window.
+/// Tray-side process dashboard with full add/edit/delete/reorder support and live status.
 /// </summary>
 public sealed class ManageProcessesForm : Form
 {
@@ -111,13 +110,18 @@ public sealed class ManageProcessesForm : Form
             Dock = DockStyle.Bottom,
             FlowDirection = FlowDirection.RightToLeft,
             Padding = new Padding(8),
-            Height = 52
+            Height = 84
         };
-        buttonPanel.Controls.Add(CreateButton("Close", 90, (_, _) => Hide()));
+        buttonPanel.Controls.Add(CreateButton("Close", 80, (_, _) => Hide()));
         buttonPanel.Controls.Add(CreateButton("View Output", 110, (_, _) => ViewSelectedOutput()));
-        buttonPanel.Controls.Add(CreateButton("Restart", 90, (_, _) => _ = RestartSelectedAsync()));
-        buttonPanel.Controls.Add(CreateButton("Stop", 80, (_, _) => _ = StopSelectedAsync()));
-        buttonPanel.Controls.Add(CreateButton("Start", 80, (_, _) => _ = StartSelectedAsync()));
+        buttonPanel.Controls.Add(CreateButton("Restart", 80, (_, _) => _ = RestartSelectedAsync()));
+        buttonPanel.Controls.Add(CreateButton("Stop", 70, (_, _) => _ = StopSelectedAsync()));
+        buttonPanel.Controls.Add(CreateButton("Start", 70, (_, _) => _ = StartSelectedAsync()));
+        buttonPanel.Controls.Add(CreateButton("Move Down", 95, (_, _) => MoveSelected(1)));
+        buttonPanel.Controls.Add(CreateButton("Move Up", 85, (_, _) => MoveSelected(-1)));
+        buttonPanel.Controls.Add(CreateButton("Delete", 80, (_, _) => _ = DeleteSelectedAsync()));
+        buttonPanel.Controls.Add(CreateButton("Edit…", 80, (_, _) => EditSelectedProcess()));
+        buttonPanel.Controls.Add(CreateButton("Add…", 80, (_, _) => AddProcess()));
 
         Controls.Add(_grid);
         Controls.Add(buttonPanel);
@@ -171,6 +175,108 @@ public sealed class ManageProcessesForm : Form
             _showOutput(id);
         }
     }
+
+    private void AddProcess()
+    {
+        using var dialog = new ProcessEditForm(null, _settings);
+        if (dialog.ShowDialog(this) == DialogResult.OK)
+        {
+            _settings.AddOrUpdate(dialog.Result);
+        }
+    }
+
+    private void EditSelectedProcess()
+    {
+        var definition = FindSelectedDefinition();
+        if (definition is null)
+        {
+            return;
+        }
+
+        using var dialog = new ProcessEditForm(definition, _settings);
+        if (dialog.ShowDialog(this) != DialogResult.OK)
+        {
+            return;
+        }
+
+        var updated = dialog.Result;
+        var commandChanged = !string.Equals(definition.CommandPath, updated.CommandPath, StringComparison.OrdinalIgnoreCase) ||
+                             !string.Equals(definition.WorkingDirectory, updated.WorkingDirectory, StringComparison.OrdinalIgnoreCase);
+        if (commandChanged && IsActive(_processes.GetState(definition.Id).Status))
+        {
+            var restart = MessageBox.Show(
+                "This process is running. The new command path will apply after a restart.\n\nRestart it now?",
+                "raccoonwatch",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+            if (restart != DialogResult.Yes)
+            {
+                return;
+            }
+
+            _ = RestartSelectedAsync();
+        }
+
+        _settings.AddOrUpdate(updated);
+    }
+
+    private async Task DeleteSelectedAsync()
+    {
+        var definition = FindSelectedDefinition();
+        if (definition is null)
+        {
+            return;
+        }
+
+        var isRunning = IsActive(_processes.GetState(definition.Id).Status);
+        var message = isRunning
+            ? $"Delete '{definition.DisplayName}'? It is currently running and will be stopped."
+            : $"Delete '{definition.DisplayName}'?";
+
+        var answer = MessageBox.Show(
+            message,
+            "raccoonwatch",
+            MessageBoxButtons.YesNo,
+            MessageBoxIcon.Question);
+        if (answer != DialogResult.Yes)
+        {
+            return;
+        }
+
+        if (isRunning)
+        {
+            await _processes.StopAsync(definition.Id);
+        }
+
+        _settings.Delete(definition.Id);
+    }
+
+    private void MoveSelected(int delta)
+    {
+        var definition = FindSelectedDefinition();
+        if (definition is null)
+        {
+            return;
+        }
+
+        var ordered = _settings.Settings.Processes
+            .OrderBy(d => d.StartOrder)
+            .ThenBy(d => d.DisplayName, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        var index = ordered.FindIndex(d => d.Id == definition.Id);
+        var target = index + delta;
+        if (index < 0 || target < 0 || target >= ordered.Count)
+        {
+            return;
+        }
+
+        var other = ordered[target];
+        _settings.AddOrUpdate(definition with { StartOrder = other.StartOrder });
+        _settings.AddOrUpdate(other with { StartOrder = definition.StartOrder });
+    }
+
+    private static bool IsActive(ProcessStatus status) =>
+        status is ProcessStatus.Starting or ProcessStatus.Running or ProcessStatus.Stopping;
 
     private ProcessDefinition? FindSelectedDefinition()
     {

@@ -152,5 +152,6 @@ Exit criterion: the user reviews and approves (or requests changes to) these doc
 - [x] Phase 1 — Solution scaffolding and core infrastructure — implemented.
 - [x] Phase 2 — Domain models and settings persistence — implemented.
 - [x] Phase 3 — Process management engine — implemented.
-- [x] Phase 4 — Tray UI and live monitoring — implemented; awaiting code review.
-- [ ] Phases 5–9 — pending.
+- [x] Phase 4 — Tray UI and live monitoring — implemented.
+- [x] Phase 5 — Process management UI — implemented.
+- [ ] Phases 6–9 — pending.

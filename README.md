@@ -8,7 +8,7 @@ A terminal-like window lets the user inspect a process's output, and both the ap
 individual processes can be configured to start automatically with Windows / with
 raccoonwatch.
 
-> **Status:** Phase 0 approved. Phases 1–4 are implemented and awaiting code review.
+> **Status:** Phase 0 approved. Phases 1–5 are implemented; development continues.
 > See [`PLAN.md`](PLAN.md) for the roadmap and
 > [`docs/specification.md`](docs/specification.md) for the requirements.
 
@@ -35,12 +35,12 @@ raccoonwatch.
   uptime, exit code, last error and balloon notifications on failure.
 - JSON settings persistence with atomic writes and corrupt-file recovery.
 - Process engine for `.exe`, `.cmd`/`.bat` and `.ps1` with redirected stdout/stderr.
-- Read-only process dashboard, terminal-style output viewer and settings dialog
-  (including the Windows-autostart toggle).
+- Full process dashboard with Add/Edit/Delete, validation, reordering and stop-on-delete.
+- Terminal-style output viewer and settings dialog (including the Windows-autostart toggle).
 - Single-instance enforcement and rolling file logs.
 
-Still to come: full Add/Edit/Delete UI (Phase 5), ANSI/output enhancements (Phase 6),
-autostart polish (Phase 7), final QA (Phase 8) and publishing (Phase 9).
+Still to come: ANSI/output enhancements (Phase 6), autostart polish (Phase 7),
+final QA (Phase 8) and publishing (Phase 9).
 
 ## Documentation
 

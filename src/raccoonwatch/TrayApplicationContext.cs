@@ -82,6 +82,24 @@ public sealed class TrayApplicationContext : ApplicationContext
         });
     }
 
+    public void ShowEdit(Guid definitionId)
+    {
+        var definition = _settings.Settings.Processes.FirstOrDefault(p => p.Id == definitionId);
+        if (definition is null)
+        {
+            return;
+        }
+
+        RunOnUiThread(() =>
+        {
+            using var dialog = new ProcessEditForm(definition, _settings);
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                _settings.AddOrUpdate(dialog.Result);
+            }
+        });
+    }
+
     public void ShowOutput(Guid definitionId)
     {
         RunOnUiThread(() =>
@@ -229,12 +247,7 @@ public sealed class TrayApplicationContext : ApplicationContext
         {
             Enabled = state.Status == ProcessStatus.Running || _output.GetSnapshot(definition.Id).Count > 0
         });
-        item.DropDownItems.Add(new ToolStripMenuItem("Edit…", null, (_, _) =>
-            MessageBox.Show(
-                "Process editing will be available in Phase 5.",
-                "raccoonwatch",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information)));
+        item.DropDownItems.Add(new ToolStripMenuItem("Edit…", null, (_, _) => ShowEdit(definition.Id)));
 
         return item;
     }
