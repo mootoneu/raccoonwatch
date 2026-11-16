@@ -13,6 +13,15 @@ public sealed class AppController(
     {
         var currentPath = Environment.ProcessPath ?? string.Empty;
         settings.Settings.StartWithWindowsMirrored = autostart.IsEnabled();
+        if (settings.Settings.StartWithWindowsMirrored &&
+            !string.IsNullOrEmpty(currentPath) &&
+            !autostart.IsPathCurrent(currentPath))
+        {
+            logger.LogWarning(
+                "Windows autostart points to a different path than {CurrentPath}. Repair it in Settings.",
+                currentPath);
+        }
+
         settings.Save();
 
         await processes.StartAutostartAsync(settings.Settings.Processes);

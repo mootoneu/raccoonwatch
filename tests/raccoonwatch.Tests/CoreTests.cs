@@ -243,6 +243,42 @@ public sealed class CoreTests : IDisposable
     public void TrayGlyph_IsStable(ProcessStatus status, string expected) =>
         Assert.Equal(expected, TrayGlyph.For(status));
 
+    [Fact]
+    public async Task AppController_StartsOnlyAutostartProcessesAndMirrorsRegistry()
+    {
+        var store = new JsonSettingsStore(NullLogger<JsonSettingsStore>.Instance, Path.Combine(_directory, "settings.json"));
+        var settings = new SettingsService(store, NullLogger<SettingsService>.Instance);
+        settings.Load();
+
+        var auto = new ProcessDefinition
+        {
+            DisplayName = "Auto",
+            Kind = ProcessKind.Executable,
+            CommandPath = @"C:\tools\auto.exe",
+            AutoStartOnLaunch = true,
+            StartOrder = 1
+        };
+        var manual = auto with { Id = Guid.NewGuid(), DisplayName = "Manual", AutoStartOnLaunch = false, StartOrder = 2 };
+        settings.AddOrUpdate(auto);
+        settings.AddOrUpdate(manual);
+
+        var oldPath = WindowsRunRegistry.FormatValue(@"C:\old\raccoonwatch.exe");
+        var registry = new FakeAutostart { Enabled = true, ConfiguredPath = oldPath };
+        var processes = new FakeProcessManager();
+        var controller = new AppController(settings, processes, registry, NullLogger<AppController>.Instance);
+
+        await controller.StartupAsync();
+
+        Assert.True(settings.Settings.StartWithWindowsMirrored);
+        Assert.Single(processes.Started);
+        Assert.Equal("Auto", processes.Started[0].DisplayName);
+        Assert.False(processes.StopAllCalled);
+
+        settings.Settings.StopProcessesOnExit = true;
+        await controller.ExitAsync();
+        Assert.True(processes.StopAllCalled);
+    }
+
     public void Dispose()
     {
         try
@@ -252,6 +288,73 @@ public sealed class CoreTests : IDisposable
         catch
         {
             // Temporary directory cleanup is best-effort.
+        }
+    }
+
+    private sealed class FakeAutostart : IAutostartService
+    {
+        public bool Enabled { get; set; }
+
+        public string? ConfiguredPath { get; set; }
+
+        public bool IsEnabled() => Enabled;
+
+        public string? GetConfiguredPath() => ConfiguredPath;
+
+        public bool IsPathCurrent(string executablePath) => ConfiguredPath == WindowsRunRegistry.FormatValue(executablePath);
+
+        public void SetEnabled(bool enabled, string executablePath)
+        {
+            Enabled = enabled;
+            ConfiguredPath = enabled ? WindowsRunRegistry.FormatValue(executablePath) : null;
+        }
+    }
+
+    private sealed class FakeProcessManager : IProcessManager
+    {
+        public List<ProcessDefinition> Started { get; } = [];
+
+        public bool StopAllCalled { get; private set; }
+
+        public event EventHandler<ProcessStateChangedEventArgs>? StateChanged;
+
+        public RuntimeState GetState(Guid definitionId) => RuntimeState.Initial(definitionId);
+
+        public IReadOnlyDictionary<Guid, RuntimeState> GetStates() => new Dictionary<Guid, RuntimeState>();
+
+        public Task<ProcessResult> StartAsync(ProcessDefinition definition)
+        {
+            Started.Add(definition);
+            StateChanged?.Invoke(this, new ProcessStateChangedEventArgs(definition.Id, RuntimeState.Initial(definition.Id)));
+            return Task.FromResult(ProcessResult.Ok());
+        }
+
+        public Task<ProcessResult> StopAsync(Guid definitionId) => Task.FromResult(ProcessResult.Ok());
+
+        public Task<ProcessResult> RestartAsync(ProcessDefinition definition) => Task.FromResult(ProcessResult.Ok());
+
+        public Task StartAllAsync(IEnumerable<ProcessDefinition> definitions)
+        {
+            Started.AddRange(definitions);
+            return Task.CompletedTask;
+        }
+
+        public Task StartAutostartAsync(IEnumerable<ProcessDefinition> definitions)
+        {
+            Started.AddRange(definitions.Where(d => d.AutoStartOnLaunch));
+            return Task.CompletedTask;
+        }
+
+        public Task StopAllAsync()
+        {
+            StopAllCalled = true;
+            return Task.CompletedTask;
+        }
+
+        public Task ShutdownAsync()
+        {
+            StopAllCalled = true;
+            return Task.CompletedTask;
         }
     }
 }

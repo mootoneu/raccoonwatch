@@ -155,4 +155,5 @@ Exit criterion: the user reviews and approves (or requests changes to) these doc
 - [x] Phase 4 — Tray UI and live monitoring — implemented.
 - [x] Phase 5 — Process management UI — implemented.
 - [x] Phase 6 — Terminal-like output viewer — implemented.
-- [ ] Phases 7–9 — pending.
+- [x] Phase 7 — Autostart features — implemented.
+- [ ] Phases 8–9 — pending.

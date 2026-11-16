@@ -16,6 +16,7 @@ public sealed class SettingsForm : Form
 
     private readonly CheckBox _startWithWindows = new() { Text = "Start raccoonwatch with Windows", AutoSize = true };
     private readonly Label _pathWarning = new() { AutoSize = false, ForeColor = Color.DarkOrange, Height = 34 };
+    private readonly Button _repair = new() { Text = "Repair", Width = 70, Height = 28, Visible = false };
     private readonly CheckBox _stopOnExit = new() { Text = "Stop tracked processes when raccoonwatch exits", AutoSize = true };
     private readonly CheckBox _notifications = new() { Text = "Show notifications on failures", AutoSize = true };
     private readonly NumericUpDown _pollInterval = new() { Minimum = 250, Maximum = 60_000, Increment = 250, Width = 100 };
@@ -61,13 +62,14 @@ public sealed class SettingsForm : Form
         var layout = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
-            ColumnCount = 2,
+            ColumnCount = 3,
             RowCount = 9,
             Padding = new Padding(16),
             AutoSize = true
         };
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 78));
 
         var row = 0;
         layout.Controls.Add(_startWithWindows, 0, row);
@@ -75,6 +77,8 @@ public sealed class SettingsForm : Form
         row++;
         layout.Controls.Add(_pathWarning, 0, row);
         layout.SetColumnSpan(_pathWarning, 2);
+        layout.Controls.Add(_repair, 2, row);
+        _repair.Click += (_, _) => RepairAutostartPath();
         row++;
         layout.Controls.Add(_stopOnExit, 0, row);
         layout.SetColumnSpan(_stopOnExit, 2);
@@ -140,14 +144,36 @@ public sealed class SettingsForm : Form
         var executable = Environment.ProcessPath ?? string.Empty;
         if (_startWithWindows.Checked && !string.IsNullOrEmpty(executable) && !_autostart.IsPathCurrent(executable))
         {
-            _pathWarning.Text = $"Warning: autostart points to '{_autostart.GetConfiguredPath()}'. Apply to repair.";
+            _pathWarning.Text = $"Warning: autostart points to '{_autostart.GetConfiguredPath()}'.";
             _pathWarning.Visible = true;
+            _repair.Visible = true;
         }
         else
         {
             _pathWarning.Text = string.Empty;
             _pathWarning.Visible = false;
+            _repair.Visible = false;
         }
+    }
+
+    private void RepairAutostartPath()
+    {
+        var executable = Environment.ProcessPath;
+        if (string.IsNullOrEmpty(executable))
+        {
+            MessageBox.Show(
+                "Could not determine the executable path.",
+                "raccoonwatch",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning);
+            return;
+        }
+
+        _autostart.SetEnabled(true, executable);
+        _settings.Settings.StartWithWindowsMirrored = true;
+        _settings.Save();
+        _startWithWindows.Checked = true;
+        LoadSettings();
     }
 
     private bool Apply()
