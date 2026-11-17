@@ -38,6 +38,7 @@ raccoonwatch.
 - Full process dashboard with Add/Edit/Delete, validation, reordering and stop-on-delete.
 - Terminal-style output viewer with ANSI colors, font sizing, pause/follow and save-to-file.
 - Settings dialog with Windows-autostart toggle, path-mismatch warning and one-click repair.
+- About window with the 400 px raccoon artwork, tagline and GitHub link (with icon).
 - Per-process autostart with ordered startup, single-instance enforcement and rolling logs.
 
 A manual QA checklist is available in [`docs/test-checklist.md`](docs/test-checklist.md).

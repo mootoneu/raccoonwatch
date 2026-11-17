@@ -33,6 +33,7 @@ Status: Pending approval
 ├───────────────────────────────────────────┤
 │ Manage Processes…                         │
 │ Settings…                                 │
+│ About…                                    │
 ├───────────────────────────────────────────┤
 │ Exit                                      │
 └───────────────────────────────────────────┘
@@ -160,7 +161,22 @@ double-buffered, alternating row colors.
   shows a repair link.
 - Changing polling/history takes effect immediately (history re-bounds buffers).
 
-## 8. Accessibility and keyboard support
+## 8. About window
+
+Accessible from the tray via `About…`. Displays, in rows:
+
+```
+        Raccoon Watch
+  Manage your processes easily
+   [400 px raccoon artwork]
+ [GitHub icon] https://github.com/mootoneu/raccoonwatch.git
+                                  [Close]
+```
+
+The artwork and GitHub icon are embedded resources so they are present in
+single-file publishes. Clicking the link opens the repository in the default browser.
+
+## 9. Accessibility and keyboard support
 
 - All controls reachable via Tab with logical order; `&` mnemonics on buttons/labels.
 - DataGridView supports arrow keys, Delete key for delete action, Enter for edit.
@@ -169,7 +185,7 @@ double-buffered, alternating row colors.
 - Status is conveyed by text and glyph, not color alone.
 - Forms respect system DPI and scale at 100/125/150/200%.
 
-## 9. Window lifecycle and threading UX
+## 10. Window lifecycle and threading UX
 
 - Closing Manage/Output/Settings hides or closes only that window; the tray app stays.
 - Form updates are marshalled to the UI thread; slow operations show a wait cursor or

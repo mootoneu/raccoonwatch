@@ -24,6 +24,7 @@ public sealed class TrayApplicationContext : ApplicationContext
 
     private ManageProcessesForm? _manageForm;
     private SettingsForm? _settingsForm;
+    private AboutForm? _aboutForm;
     private readonly Dictionary<Guid, ProcessOutputForm> _outputForms = [];
 
     public TrayApplicationContext(
@@ -79,6 +80,16 @@ public sealed class TrayApplicationContext : ApplicationContext
             _settingsForm ??= _services.GetRequiredService<SettingsForm>();
             _settingsForm.Show();
             _settingsForm.BringToFront();
+        });
+    }
+
+    public void ShowAbout()
+    {
+        RunOnUiThread(() =>
+        {
+            _aboutForm ??= new AboutForm();
+            _aboutForm.Show();
+            _aboutForm.BringToFront();
         });
     }
 
@@ -166,6 +177,7 @@ public sealed class TrayApplicationContext : ApplicationContext
 
             _manageForm?.Dispose();
             _settingsForm?.Dispose();
+            _aboutForm?.Dispose();
             _trayIcon.ContextMenuStrip?.Dispose();
             _trayIcon.Dispose();
             _invoker.Dispose();
@@ -204,6 +216,7 @@ public sealed class TrayApplicationContext : ApplicationContext
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add(new ToolStripMenuItem("Manage Processes…", null, (_, _) => ShowManageProcesses()));
         menu.Items.Add(new ToolStripMenuItem("Settings…", null, (_, _) => ShowSettings()));
+        menu.Items.Add(new ToolStripMenuItem("About…", null, (_, _) => ShowAbout()));
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add(new ToolStripMenuItem("Exit", null, (_, _) => _ = ExitApplicationAsync()));
     }

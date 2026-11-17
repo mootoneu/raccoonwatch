@@ -1,3 +1,4 @@
+using System.Drawing;
 using Microsoft.Extensions.Logging.Abstractions;
 using Raccoonwatch.Infrastructure;
 using Raccoonwatch.Models;
@@ -209,6 +210,23 @@ public sealed class CoreTests : IDisposable
 
         store.Clear(id);
         Assert.Empty(store.GetSnapshot(id));
+    }
+
+    [Fact]
+    public void AboutResources_AreEmbeddedAndLoadable()
+    {
+        var assembly = typeof(AboutForm).Assembly;
+        var names = assembly.GetManifestResourceNames();
+
+        Assert.Contains("Raccoonwatch.assets.raccoonwatch_icon_1254x1254.png", names);
+        Assert.Contains("Raccoonwatch.assets.github-mark.png", names);
+
+        using var stream = assembly.GetManifestResourceStream(
+            "Raccoonwatch.assets.raccoonwatch_icon_1254x1254.png");
+        Assert.NotNull(stream);
+        using var image = Image.FromStream(stream!);
+        Assert.Equal(image.Width, image.Height);
+        Assert.True(image.Width >= 1254);
     }
 
     [Fact]
