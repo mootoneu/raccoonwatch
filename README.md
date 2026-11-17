@@ -8,9 +8,28 @@ A terminal-like window lets the user inspect a process's output, and both the ap
 individual processes can be configured to start automatically with Windows / with
 raccoonwatch.
 
-> **Status:** Phase 0 approved. Phases 1–8 are implemented; release packaging remains.
-> See [`PLAN.md`](PLAN.md) for the roadmap and
-> [`docs/specification.md`](docs/specification.md) for the requirements.
+> **Status:** All phases of [`PLAN.md`](PLAN.md) are implemented, tested and published.
+> See [`docs/specification.md`](docs/specification.md) for the requirements.
+
+## Disclaimer
+
+`raccoonwatch` was created collaboratively during an interactive development session
+with an AI coding assistant (OpenCode). The repository owner supplied the idea, the
+raccoon artwork and the requirements; reviewed and approved the specification and the
+phased plan; and directed the assistant phase by phase. The assistant produced the
+design documents, the C# implementation, the automated tests and the packaging
+scripts. The owner reviewed the resulting code and requested targeted fixes, such as
+the notification-area/window icon correction and the About window.
+
+The GitHub mark used in the About window is GitHub's official icon, downloaded from
+GitHub's public assets and used only to link to this project's repository.
+
+This software is provided **"as is"**, without warranty of any kind. An automated test
+suite and a manual [test checklist](docs/test-checklist.md) are included, but the code
+has not been formally audited or certified. Review it and test it in your own
+environment before relying on it to manage important processes. Note in particular
+that PowerShell scripts are intentionally launched with `-ExecutionPolicy Bypass`; make
+sure you understand that behavior before use.
 
 ## Features
 
@@ -27,7 +46,7 @@ raccoonwatch.
 - Settings persisted as JSON in `%APPDATA%\raccoonwatch\settings.json`.
 - Single instance; double-clicking the tray icon opens the process manager.
 
-## What works now (Phases 1–4)
+## What works now
 
 - Tray icon with dynamic right-click menu listing every configured process and status.
 - Start / Stop / Restart / Start All / Stop All from the tray.
@@ -42,7 +61,8 @@ raccoonwatch.
 - Per-process autostart with ordered startup, single-instance enforcement and rolling logs.
 
 A manual QA checklist is available in [`docs/test-checklist.md`](docs/test-checklist.md).
-Still to come: single-file publishing (Phase 9).
+Single-file publishing (framework-dependent and self-contained) is available through
+`scripts/publish.ps1`.
 
 ## Documentation
 
