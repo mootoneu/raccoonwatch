@@ -212,6 +212,16 @@ public sealed class CoreTests : IDisposable
     }
 
     [Fact]
+    public void AppIcon_LoadsEmbeddedRaccoonIcon()
+    {
+        using var icon = AppIcon.Create();
+
+        Assert.True(icon.Width > 0);
+        Assert.Equal(icon.Width, icon.Height);
+        Assert.NotEqual(IntPtr.Zero, icon.Handle);
+    }
+
+    [Fact]
     public void AnsiTextParser_InterpretsForegroundAndReset()
     {
         var segments = AnsiTextParser.Parse("\u001b[31mred\u001b[0m normal");

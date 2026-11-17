@@ -47,7 +47,7 @@ public sealed class TrayApplicationContext : ApplicationContext
 
         _trayIcon = new NotifyIcon
         {
-            Icon = LoadIcon(),
+            Icon = AppIcon.Create(),
             Text = "raccoonwatch",
             Visible = true,
             ContextMenuStrip = new ContextMenuStrip { ShowImageMargin = false }
@@ -176,19 +176,6 @@ public sealed class TrayApplicationContext : ApplicationContext
 
     private static bool IsActive(ProcessStatus status) =>
         status is ProcessStatus.Starting or ProcessStatus.Running or ProcessStatus.Stopping;
-
-    private static Icon LoadIcon()
-    {
-        try
-        {
-            var path = Path.Combine(AppContext.BaseDirectory, "raccoonwatch.ico");
-            return File.Exists(path) ? new Icon(path) : SystemIcons.Application;
-        }
-        catch
-        {
-            return SystemIcons.Application;
-        }
-    }
 
     private void RebuildMenu(ContextMenuStrip menu)
     {

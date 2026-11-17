@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Windows.Forms;
+using Raccoonwatch.Infrastructure;
 using Raccoonwatch.Models;
 using Raccoonwatch.Services;
 
@@ -37,6 +38,7 @@ public sealed class ProcessEditForm : Form
         _settings = settings;
 
         Text = original is null ? "raccoonwatch — Add Process" : "raccoonwatch — Edit Process";
+        Icon = AppIcon.Create();
         StartPosition = FormStartPosition.CenterParent;
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;

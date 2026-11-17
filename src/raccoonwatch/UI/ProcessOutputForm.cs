@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Windows.Forms;
+using Raccoonwatch.Infrastructure;
 using Raccoonwatch.Models;
 using Raccoonwatch.Services;
 
@@ -45,6 +46,7 @@ public sealed class ProcessOutputForm : Form
         _settings = settings;
 
         Text = "raccoonwatch — Process Output";
+        Icon = AppIcon.Create();
         StartPosition = FormStartPosition.CenterScreen;
         MinimumSize = new Size(640, 360);
         Size = new Size(900, 560);

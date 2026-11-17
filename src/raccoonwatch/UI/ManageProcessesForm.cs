@@ -1,4 +1,5 @@
 using System.Windows.Forms;
+using Raccoonwatch.Infrastructure;
 using Raccoonwatch.Models;
 using Raccoonwatch.Services;
 
@@ -35,6 +36,7 @@ public sealed class ManageProcessesForm : Form
         _showOutput = showOutput;
 
         Text = "raccoonwatch — Manage Processes";
+        Icon = AppIcon.Create();
         StartPosition = FormStartPosition.CenterScreen;
         MinimumSize = new System.Drawing.Size(820, 420);
         Size = new System.Drawing.Size(980, 520);

@@ -40,6 +40,7 @@ public sealed class SettingsForm : Form
         _logging = logging;
 
         Text = "raccoonwatch — Settings";
+        Icon = AppIcon.Create();
         StartPosition = FormStartPosition.CenterScreen;
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
