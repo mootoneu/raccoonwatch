@@ -10,7 +10,7 @@ param(
     [string]$Configuration = 'Release',
     [string]$Runtime = 'win-x64',
     [switch]$SelfContained,
-    [string]$Version = '0.1.0',
+    [string]$Version = '1.0.0',
     [switch]$SkipZip
 )
 
