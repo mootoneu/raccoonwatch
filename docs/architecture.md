@@ -1,7 +1,7 @@
 # raccoonwatch — Architecture and Technical Design (Phase 0)
 
-Version: 0.1 (draft for review)
-Status: Pending approval
+Version: 1.0
+Status: Approved — reflects the implemented application.
 
 ## 1. Architectural overview
 
@@ -13,7 +13,8 @@ service layer.
 ┌──────────────────────────────────────────────────────────────┐
 │ Presentation (WinForms, UI thread)                            │
 │  TrayApplicationContext · ManageProcessesForm ·               │
-│  ProcessEditForm · ProcessOutputForm · SettingsForm           │
+│  ProcessEditForm · ProcessOutputForm · SettingsForm ·          │
+│  AboutForm · AnsiTextParser · TrayGlyph                       │
 └───────────────┬──────────────────────────────────────────────┘
                 │ events / commands (marshalled to UI thread)
 ┌───────────────▼──────────────────────────────────────────────┐
@@ -25,34 +26,40 @@ service layer.
 ┌───────────────▼──────────────────────────────────────────────┐
 │ Domain / Infrastructure                                       │
 │  Models · ProcessLauncher · JsonSettingsStore ·               │
-│  WindowsRunRegistry · FileLogger · SingleInstanceGuard        │
+│  WindowsRunRegistry · FileLogger · SingleInstanceGuard ·       │
+│  AppIcon (embedded resources)                                  │
 └──────────────────────────────────────────────────────────────┘
 ```
 
 Dependencies point inward: presentation may call services and subscribe to events;
 services never reference WinForms types. This keeps the core testable with xUnit.
 
-## 2. Proposed repository layout
+## 2. Repository layout
 
 ```
 D:\Projects\raccoonwatch\
+├── LICENSE                     # GNU GPL v3.0
 ├── PLAN.md
 ├── README.md
-├── docs\                       # this specification set
+├── raccoonwatch.slnx
+├── raccoonwatch_icon_64x64.png
+├── raccoonwatch_icon_1254x1254.png
+├── docs\                       # specification, design, data model, UI, QA checklist
 ├── assets\
-│   └── raccoonwatch.ico        # generated from provided PNGs (Phase 1)
+│   ├── raccoonwatch.ico        # generated from provided PNGs
+│   └── github-mark.png         # GitHub icon used in the About window
 ├── scripts\
-│   └── publish.ps1             # Phase 9
+│   ├── generate-icon.ps1
+│   └── publish.ps1
 ├── src\
 │   └── raccoonwatch\
-│       ├── raccoonwatch.csproj # net10.0-windows, UseWindowsForms
-│       ├── Program.cs          # entry point, DI, single instance
-│       ├── ApplicationContext.cs
+│       ├── raccoonwatch.csproj # net10.0-windows, UseWindowsForms, embedded icons
+│       ├── Program.cs          # entry point, DI, logging, single instance
+│       ├── TrayApplicationContext.cs
 │       ├── Models\             # ProcessDefinition, AppSettings, enums, runtime state
 │       ├── Services\           # interfaces + implementations
-│       ├── Infrastructure\     # process launcher, JSON store, registry, logging
-│       ├── UI\                 # forms and tray menu builder
-│       └── Properties\         # assembly info / manifest (DPI awareness)
+│       ├── Infrastructure\     # launcher, JSON store, registry, logging, AppIcon
+│       └── UI\                 # forms, ANSI parser, tray glyphs
 └── tests\
     └── raccoonwatch.Tests\     # xUnit
 ```
@@ -64,19 +71,20 @@ D:\Projects\raccoonwatch\
 | `Program` | Configure DI, logging, high-DPI mode, single-instance guard; start `ApplicationContext`; start autostart processes. |
 | `SingleInstanceGuard` | Named `Mutex` (`Local\raccoonwatch.singleinstance`). Second instance signals the first via a named pipe message `SHOW_MANAGE`, then exits. |
 | `TrayApplicationContext` | Owns `NotifyIcon`; builds context menu from settings and runtime states; handles double-click; coordinates showing/hiding forms; clean shutdown. |
-| `ISettingsService` | Load/save `AppSettings`; validate and normalize definitions; raise `SettingsChanged`; atomic writes with debounce. |
+| `ISettingsService` | Load/save `AppSettings`; validate and normalize definitions; raise `Changed`; atomic writes on explicit save. |
 | `JsonSettingsStore` | Schema-versioned serialize/deserialize with `System.Text.Json`; atomic temp-file + `File.Move(overwrite)`; creates defaults and backups on corrupt file. |
 | `IProcessManager` | Authoritative runtime state for definitions: start, stop, restart, start/stop all; periodic polling; emits `StateChanged`. |
 | `ProcessLauncher` | Builds `ProcessStartInfo` per `ProcessKind`; creates `Process` objects with redirected stdout/stderr; returns a handle used by the manager. |
-| `IOutputStore` | Bounded per-process ring buffers (5,000 lines default); thread-safe append with `lock`/`Channel`; emits batched `OutputReceived` events; provides snapshot for late viewers. |
+| `IOutputStore` | Bounded per-process ring buffers (5,000 lines default); thread-safe lock-based append; emits batched `OutputReceived` events every ~100 ms; provides snapshot for late viewers. |
 | `IAutostartService` | Reads/writes the HKCU Run value; reports path mismatch; no elevation. |
 | `IAppController` | Orchestration used by UI: initialize, start flagged processes in order, exit behavior (optionally stop tracked processes). |
-| Forms | `ManageProcessesForm` (DataGridView + Add/Edit/Delete), `ProcessEditForm`, `ProcessOutputForm`, `SettingsForm`. All UI-thread only. |
+| Forms | `ManageProcessesForm` (DataGridView + Add/Edit/Delete/reorder), `ProcessEditForm`, `ProcessOutputForm` (ANSI colors, save), `SettingsForm`, `AboutForm`. All UI-thread only. |
 
 ## 4. Startup sequence
 
 1. `Main` enables per-monitor DPI awareness, configures logging.
-2. `SingleInstanceGuard.TryAcquire()`; if false, send `SHOW_MANAGE` to first instance and return.
+2. Construct `SingleInstanceGuard`; if it is not the first instance, signal `SHOW_MANAGE`
+   to the running instance and return.
 3. Build service provider; `ISettingsService.Load()` (defaults on missing/corrupt file, with a warning log).
 4. Create `TrayApplicationContext` and `NotifyIcon`; set initial icon/tooltip and menu.
 5. Call `IAppController.StartupAsync()`:
@@ -88,7 +96,8 @@ D:\Projects\raccoonwatch\
 ## 5. Threading and concurrency
 
 - WinForms requires an STA UI thread. All form and `NotifyIcon` access happens on that thread.
-- `IProcessManager` runs a `PeriodicTimer` loop (default 2 s) on a background task. It
+- `IProcessManager` runs a `Task.Delay`-based polling loop (default 2 s, re-read from
+  settings each iteration) on a background task. It
   only touches `Process` objects and runtime state; it raises events with immutable
   snapshots.
 - Services marshal UI-bound events through `SynchronizationContext` captured at startup
@@ -137,10 +146,14 @@ A process that exits within the first poll after launch with a non-zero code is 
 
 - `JsonSettingsStore` writes to `settings.json.tmp`, then replaces the target. A
   corrupt file is moved to `settings.json.bad` and defaults are created.
-- `SettingsChanged` triggers a debounced save (e.g. 300 ms) so batch edits result in
-  one write.
+- `ISettingsService.Changed` is raised after an explicit save (for example, OK/Apply
+  in Settings or Add/Edit/Delete in the process manager); there is no background
+  polling or debounce timer.
 - Absolute paths are stored (no environment variables expanded at save time beyond
   trimming); `%APPDATA%` is resolved via `Environment.GetFolderPath`.
+- The raccoon ICO, the 1254 px artwork and the GitHub mark are embedded as assembly
+  resources and loaded through `AppIcon` / `AboutForm`, so single-file publishes keep
+  the tray icon and About imagery.
 
 ## 8. Autostart
 
@@ -179,8 +192,8 @@ A process that exits within the first poll after launch with a non-zero code is 
   buffer bounds, autostart value formatting (with an injectable registry abstraction).
 - **Integration/manual:** launch sample `.exe`, `.cmd`, `.ps1`; start/stop/restart from
   tray; kill a process externally and observe `Exited`; open output viewer; toggle both
-  autostart mechanisms; verify single instance and DPI scaling. The checklist will live
-  in `docs/test-checklist.md` (Phase 8).
+  autostart mechanisms; verify single instance and DPI scaling. The checklist is in
+  [`docs/test-checklist.md`](test-checklist.md).
 - **Release check:** `dotnet publish` single-file output launches on a clean Windows
   profile with the correct tray icon.
 

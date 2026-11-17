@@ -1,7 +1,7 @@
 # raccoonwatch — UI Design (Phase 0)
 
-Version: 0.1 (draft for review)
-Status: Pending approval
+Version: 1.0
+Status: Approved — reflects the implemented UI.
 
 ## 1. Design principles
 
@@ -83,11 +83,13 @@ double-buffered, alternating row colors.
 ```
 
 - Editable fields/flags are only in the Add/Edit dialog; the grid is read-only except
-  for ordering via up/down toolbar actions (optional).
+  for ordering via the implemented Move Up/Move Down toolbar actions.
 - "Auto" column reflects `AutoStartOnLaunch`.
 - Live status column updates from `IProcessManager.StateChanged`.
 - Delete asks: `Delete "Backup job"? It is currently running and will be stopped.`
-- Closing with unsaved changes prompts to Save/Discard/Cancel.
+- Add/Edit/Delete and reordering are persisted immediately through `ISettingsService`;
+  there is no separate unsaved-state buffer. Closing the window hides it; application
+  exit is handled from the tray menu.
 
 ## 5. Process edit dialog (`Add` / `Edit`)
 
@@ -178,10 +180,10 @@ single-file publishes. Clicking the link opens the repository in the default bro
 
 ## 9. Accessibility and keyboard support
 
-- All controls reachable via Tab with logical order; `&` mnemonics on buttons/labels.
-- DataGridView supports arrow keys, Delete key for delete action, Enter for edit.
-- Tray menu uses standard Win32 mnemonics where practical and is fully keyboard
-  navigable after opening with the keyboard.
+- All controls reachable via Tab with logical order.
+- DataGridView supports arrow keys, Delete key for delete action and Enter for edit.
+- Buttons expose accessible names. The tray menu is fully keyboard navigable after
+  opening with the keyboard.
 - Status is conveyed by text and glyph, not color alone.
 - Forms respect system DPI and scale at 100/125/150/200%.
 

@@ -14,12 +14,12 @@ raccoonwatch.
 ## Disclaimer
 
 `raccoonwatch` was created collaboratively during an interactive development session
-with an AI coding assistant (OpenCode). The repository owner supplied the idea, the
-raccoon artwork and the requirements; reviewed and approved the specification and the
+with an AI coding assistant (OpenCode with Hy4 flash free). The repository owner supplied the idea, the
+raccoon artwork generated with ChatGPT and the requirements; reviewed and approved the specification and the
 phased plan; and directed the assistant phase by phase. The assistant produced the
 design documents, the C# implementation, the automated tests and the packaging
 scripts. The owner reviewed the resulting code and requested targeted fixes, such as
-the notification-area/window icon correction and the About window.
+the notification-area/window icon correction ; and requested new unplanned additions, such as the About window.
 
 The GitHub mark used in the About window is GitHub's official icon, downloaded from
 GitHub's public assets and used only to link to this project's repository.
@@ -71,6 +71,12 @@ Single-file publishing (framework-dependent and self-contained) is available thr
 - [Architecture and technical design](docs/architecture.md)
 - [Data model, settings schema and state machine](docs/data-model.md)
 - [UI design](docs/ui-design.md)
+- [Manual test checklist](docs/test-checklist.md)
+
+## License
+
+`raccoonwatch` is licensed under the **GNU General Public License v3.0**.
+See [LICENSE](LICENSE) for the full license text.
 
 ## Build and run
 

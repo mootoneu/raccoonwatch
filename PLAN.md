@@ -158,4 +158,8 @@ Exit criterion: the user reviews and approves (or requests changes to) these doc
 - [x] Phase 7 — Autostart features — implemented.
 - [x] Phase 8 — Polish and quality — implemented.
 - [x] Phase 9 — Release — implemented and verified (framework-dependent and self-contained publishes).
-- [ ] All phases complete; ready for final review.
+- [x] All phases complete; ready for final review.
+
+Post-plan additions (requested after Phase 9): notification-area/window icon fix,
+About window, README creation disclaimer, GPL-3.0 `LICENSE`, Open log folder action,
+DataGridView Delete/Enter shortcuts, and a documentation refresh.

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 using Microsoft.Extensions.Logging;
@@ -120,6 +121,7 @@ public sealed class SettingsForm : Form
             }
         }));
         buttons.Controls.Add(CreateButton("Apply", (_, _) => Apply()));
+        buttons.Controls.Add(CreateButton("Open log folder", (_, _) => OpenLogFolder()));
 
         Controls.Add(layout);
         Controls.Add(buttons);
@@ -154,6 +156,27 @@ public sealed class SettingsForm : Form
             _pathWarning.Text = string.Empty;
             _pathWarning.Visible = false;
             _repair.Visible = false;
+        }
+    }
+
+    private static void OpenLogFolder()
+    {
+        try
+        {
+            Directory.CreateDirectory(AppPaths.LogDirectory);
+            using var process = Process.Start(new ProcessStartInfo("explorer.exe")
+            {
+                Arguments = $"\"{AppPaths.LogDirectory}\"",
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(
+                $"Could not open the log folder: {ex.Message}",
+                "raccoonwatch",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning);
         }
     }
 

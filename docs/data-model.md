@@ -1,7 +1,7 @@
 # raccoonwatch — Data Model and State Machine (Phase 0)
 
-Version: 0.1 (draft for review)
-Status: Pending approval
+Version: 1.0
+Status: Approved — reflects the implemented data model.
 
 ## 1. Domain types
 

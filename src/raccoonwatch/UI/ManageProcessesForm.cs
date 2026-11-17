@@ -106,6 +106,19 @@ public sealed class ManageProcessesForm : Form
             Width = 60
         });
         _grid.CellDoubleClick += (_, _) => ViewSelectedOutput();
+        _grid.KeyDown += (_, e) =>
+        {
+            if (e.KeyCode == Keys.Delete)
+            {
+                _ = DeleteSelectedAsync();
+                e.SuppressKeyPress = true;
+            }
+            else if (e.KeyCode == Keys.Enter)
+            {
+                EditSelectedProcess();
+                e.SuppressKeyPress = true;
+            }
+        };
 
         var buttonPanel = new FlowLayoutPanel
         {

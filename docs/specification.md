@@ -1,7 +1,7 @@
 # raccoonwatch — Software Specification (Phase 0)
 
-Version: 0.1 (draft for review)
-Status: Pending approval
+Version: 1.0
+Status: Approved — implemented in Phases 1–9, with later additions documented below.
 
 ## 1. Purpose and scope
 
@@ -74,7 +74,7 @@ processes it started itself.
 
 - FR-3.1 Start a single process; if it is already running, the action is disabled/no-op.
 - FR-3.2 Stop a single process: attempt graceful close of its main window, then
-  terminate the process tree after a configurable timeout (default 5 s).
+  terminate the process tree after a fixed 5-second timeout.
 - FR-3.3 Restart a single process = stop followed by start, preserving the same
   definition and output history (with a separator line marking the restart).
 - FR-3.4 Start All starts every definition in ascending start order, skipping ones
@@ -106,8 +106,8 @@ processes it started itself.
   and a status line (PID / uptime / exit code when exited).
 - FR-5.3 Menu items are enabled/disabled based on current status (e.g. Stop disabled
   when stopped, View Output enabled when output exists).
-- FR-5.4 Below the process list: `Manage Processes…`, `Settings…`, `Start All`,
-  `Stop All`, separator, `Exit`.
+- FR-5.4 Below the process list: `Start All`, `Stop All`, separator,
+  `Manage Processes…`, `Settings…`, `About…`, separator, `Exit`.
 - FR-5.5 Status glyphs/colors: green = Running, grey = Stopped, amber = Starting/
   Stopping, red = Exited/Failed. Tooltip on the icon summarizes counts.
 
@@ -150,8 +150,8 @@ processes it started itself.
   preference mirror.
 - FR-9.2 Writes are atomic (write temporary file, then replace) so a crash cannot
   corrupt the file. A missing/corrupt file is recreated with defaults and reported.
-- FR-9.3 Settings are saved when the user confirms a dialog; no background polling of
-  the file is required in v1.
+- FR-9.3 Settings are saved immediately when the user confirms a dialog; there is no
+  background polling of the settings file.
 
 ### FR-10 — Error handling and logging
 
@@ -159,7 +159,16 @@ processes it started itself.
   a non-blocking notification or inline form error; they never crash the app.
 - FR-10.2 Logs are written as rolling text files under
   `%LOCALAPPDATA%\raccoonwatch\logs\`, with configurable level.
-- FR-10.3 A "View log folder" action is available in Settings.
+- FR-10.3 An "Open log folder" action is available in Settings.
+
+### FR-11 — About window (added after the original plan)
+
+- FR-11.1 The tray menu includes an `About…` action.
+- FR-11.2 The window displays the title `Raccoon Watch`, the subtitle
+  `Manage your processes easily`, the raccoon artwork at a fixed 400 px width, and a
+  clickable link to `https://github.com/mootoneu/raccoonwatch.git` with a GitHub icon.
+- FR-11.3 Clicking the link opens the repository in the default browser. All artwork is
+  embedded so the window works in single-file publishes.
 
 ## 4. Non-functional requirements
 
@@ -245,13 +254,20 @@ status; a failure of the first does not prevent the second from starting.
 **Acceptance:** rename is reflected in the tray menu and JSON; delete prompts for
 confirmation, stops the process if running, and removes it from menu and JSON.
 
+### UC-9 — View the About window
+
+1. User right-clicks the tray icon and chooses About.
+
+**Acceptance:** the title, subtitle, 400 px artwork and GitHub link with icon are shown;
+clicking the link opens the repository in the default browser.
+
 ## 6. Assumptions and constraints
 
 - Scripts are local files; no remote execution is supported.
 - Redirected output requires console-style processes; GUI-only apps will simply
   produce no output.
 - A process that detaches itself from the launched process tree cannot be reliably
-  tracked or stopped; this is documented as a limitation in the user guide.
+  tracked or stopped; this limitation is documented in this specification.
 - The HKCU Run entry points to the executable in place; moving/deleting the executable
   requires re-running the toggle to repair the path.
 - No self-update mechanism in v1.
