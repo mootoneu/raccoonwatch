@@ -11,8 +11,9 @@ process output, manage the process list, and enable autostart both for raccoonwa
 itself and for individual processes.
 
 Target folder: `D:\Projects\raccoonwatch\`
-Existing assets: `raccoonwatch_icon_64x64.png`, `raccoonwatch_icon_1254x1254.png`
-(to be converted into an `.ico` for the tray and forms).
+Existing assets: `assets/raccoonwatch_icon_64x64.png`,
+`assets/raccoonwatch_icon_1254x1254.png` (converted into `assets/raccoonwatch.ico`
+for the tray and forms).
 
 ## 2. Proposed technical choices
 

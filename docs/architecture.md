@@ -42,11 +42,11 @@ D:\Projects\raccoonwatch\
 ├── PLAN.md
 ├── README.md
 ├── raccoonwatch.slnx
-├── raccoonwatch_icon_64x64.png
-├── raccoonwatch_icon_1254x1254.png
 ├── docs\                       # specification, design, data model, UI, QA checklist
 ├── assets\
-│   ├── raccoonwatch.ico        # generated from provided PNGs
+│   ├── raccoonwatch.ico        # generated from the PNGs below
+│   ├── raccoonwatch_icon_64x64.png
+│   ├── raccoonwatch_icon_1254x1254.png
 │   └── github-mark.png         # GitHub icon used in the About window
 ├── scripts\
 │   ├── generate-icon.ps1

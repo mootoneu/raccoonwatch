@@ -21,12 +21,17 @@ $project = Join-Path $repoRoot 'src\raccoonwatch\raccoonwatch.csproj'
 $outputDirectory = Join-Path $repoRoot "artifacts\publish\$Runtime"
 $executable = Join-Path $outputDirectory 'raccoonwatch.exe'
 $icon = Join-Path $repoRoot 'assets\raccoonwatch.ico'
+$artwork = Join-Path $repoRoot 'assets\raccoonwatch_icon_1254x1254.png'
+$sourceIcon = Join-Path $repoRoot 'assets\raccoonwatch_icon_64x64.png'
+$githubIcon = Join-Path $repoRoot 'assets\github-mark.png'
 
 if (-not (Test-Path $project)) {
     throw "Project not found: $project"
 }
-if (-not (Test-Path $icon)) {
-    throw "Icon not found: $icon. Run scripts/generate-icon.ps1 first."
+foreach ($asset in @($icon, $artwork, $sourceIcon, $githubIcon)) {
+    if (-not (Test-Path $asset)) {
+        throw "Required asset not found: $asset. Check the assets folder and run scripts/generate-icon.ps1 if the ICO is missing."
+    }
 }
 
 New-Item -ItemType Directory -Force -Path $outputDirectory | Out-Null

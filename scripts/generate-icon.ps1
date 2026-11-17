@@ -5,7 +5,7 @@ Each entry is a 32-bpp BMP/DIB image (not a PNG-compressed entry), which is what
 the Windows notification area and WinForms title bars render reliably.
 #>
 param(
-    [string]$Source = (Join-Path $PSScriptRoot '..\raccoonwatch_icon_64x64.png'),
+    [string]$Source = (Join-Path $PSScriptRoot '..\assets\raccoonwatch_icon_64x64.png'),
     [string]$Output = (Join-Path $PSScriptRoot '..\assets\raccoonwatch.ico')
 )
 

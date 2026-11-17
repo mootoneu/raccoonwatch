@@ -26,7 +26,7 @@
     </Content>
     <EmbeddedResource Include="..\..\assets\raccoonwatch.ico"
                       LogicalName="Raccoonwatch.assets.raccoonwatch.ico" />
-    <EmbeddedResource Include="..\..\raccoonwatch_icon_1254x1254.png"
+    <EmbeddedResource Include="..\..\assets\raccoonwatch_icon_1254x1254.png"
                       LogicalName="Raccoonwatch.assets.raccoonwatch_icon_1254x1254.png" />
     <EmbeddedResource Include="..\..\assets\github-mark.png"
                       LogicalName="Raccoonwatch.assets.github-mark.png" />

@@ -100,8 +100,8 @@ Output goes to `artifacts/publish/<runtime>/raccoonwatch.exe`; a zip is written 
 
 ## Assets
 
-The tray and form icon is generated from `raccoonwatch_icon_64x64.png` and
-`raccoonwatch_icon_1254x1254.png` by `scripts/generate-icon.ps1` into
+The tray and form icon is generated from `assets/raccoonwatch_icon_64x64.png` and
+`assets/raccoonwatch_icon_1254x1254.png` by `scripts/generate-icon.ps1` into
 `assets/raccoonwatch.ico`. It uses 32-bpp BMP/DIB entries (not PNG-compressed entries)
 so the Windows notification area and WinForms title bars render it correctly. The ICO
 is also embedded as `Raccoonwatch.assets.raccoonwatch.ico` so single-file publishes
