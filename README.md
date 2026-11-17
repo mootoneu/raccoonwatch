@@ -2,7 +2,7 @@
 
 # Raccoon Watch
 
-<img src="assets/raccoonwatch_icon_1254x1254.png" alt="REA launching its analysis bridge inside Hopper while inspecting a native binary" width="400" />
+<img src="assets/raccoonwatch_icon_1254x1254.png" alt="Raccoon Watch icon, that is a raccoon holding binoculars" width="400" />
 
 **raccoonwatch** is a Windows system-tray application 
 that starts, restarts, stops and monitors a user-managed list of processes.
