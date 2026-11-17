@@ -1,25 +1,26 @@
-# raccoonwatch
+<div align="center">
 
-`raccoonwatch` is a Windows system-tray application (Windows 10/11, modern C#/.NET 10)
-that starts, restarts, stops and monitors a user-managed list of processes. Processes
+# Raccoon Watch
+
+<img src="assets/raccoonwatch_icon_1254x1254.png" alt="REA launching its analysis bridge inside Hopper while inspecting a native binary" width="400" />
+
+**raccoonwatch** is a Windows system-tray application 
+that starts, restarts, stops and monitors a user-managed list of processes.
+
+The application is made with Windows 10/11, modern C#/.NET 10. Processes
 can be executables (`.exe`), `cmd`/`.bat` scripts or PowerShell (`.ps1`) scripts. The
 tray context menu is the main dashboard: each process is shown with its live status.
 A terminal-like window lets the user inspect a process's output, and both the app and
 individual processes can be configured to start automatically with Windows / with
 raccoonwatch.
+</div>
+
 
 > **Status:** All phases of [`PLAN.md`](PLAN.md) are implemented, tested and published.
 > See [`docs/specification.md`](docs/specification.md) for the requirements.
 
-## Disclaimer
-
-`raccoonwatch` was created collaboratively during an interactive development session
-with an AI coding assistant (OpenCode with Hy4 flash free). The repository owner supplied the idea, the
-raccoon artwork generated with ChatGPT and the requirements; reviewed and approved the specification and the
-phased plan; and directed the assistant phase by phase. The assistant produced the
-design documents, the C# implementation, the automated tests and the packaging
-scripts. The owner reviewed the resulting code and requested targeted fixes, such as
-the notification-area/window icon correction ; and requested new unplanned additions, such as the About window.
+> [!IMPORTANT]
+> `raccoonwatch` was created collaboratively during an interactive development session with an AI coding assistant (OpenCode with Hy4 flash free). The repository owner supplied the idea, the raccoon artwork generated with ChatGPT and the requirements; reviewed and approved the specification and the phased plan; and directed the assistant phase by phase. The assistant produced the design documents, the C# implementation, the automated tests and the packaging scripts. The owner reviewed the resulting code and requested targeted fixes, such as the notification-area/window icon correction ; and requested new unplanned additions, such as the About window.
 
 The GitHub mark used in the About window is GitHub's official icon, downloaded from
 GitHub's public assets and used only to link to this project's repository.
