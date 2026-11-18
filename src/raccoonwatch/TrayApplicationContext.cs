@@ -270,8 +270,65 @@ public sealed class TrayApplicationContext : ApplicationContext
         });
         item.DropDownItems.Add(new ToolStripMenuItem("Edit…", null, (_, _) => ShowEdit(definition.Id)));
         item.DropDownItems.Add(BuildOpenProjectFolderItem(definition, OpenProjectFolder));
+        item.DropDownItems.Add(BuildUpdateItem(definition, process => _ = RunUpdateAsync(process)));
 
         return item;
+    }
+
+    /// <summary>Builds the per-process "Update" menu entry.</summary>
+    internal static ToolStripMenuItem BuildUpdateItem(
+        ProcessDefinition definition, Action<ProcessDefinition> update)
+    {
+        ArgumentNullException.ThrowIfNull(definition);
+        ArgumentNullException.ThrowIfNull(update);
+
+        var configured = !string.IsNullOrWhiteSpace(definition.UpdateCommandPath);
+        var item = new ToolStripMenuItem("Update")
+        {
+            Enabled = configured,
+            ToolTipText = configured
+                ? $"Run {definition.UpdateCommandPath} {definition.UpdateArguments}".TrimEnd()
+                : "No update command is configured for this process."
+        };
+
+        if (configured)
+        {
+            item.Click += (_, _) => update(definition);
+        }
+
+        return item;
+    }
+
+    private async Task RunUpdateAsync(ProcessDefinition definition)
+    {
+        try
+        {
+            using var process = UpdateCommandLauncher.Launch(
+                definition.UpdateCommandPath, definition.UpdateArguments);
+            await process.WaitForExitAsync();
+
+            if (process.ExitCode == 0)
+            {
+                _logger.LogInformation(
+                    "Update command '{Command}' for '{Process}' completed successfully.",
+                    definition.UpdateCommandPath,
+                    definition.DisplayName);
+            }
+            else
+            {
+                _logger.LogWarning(
+                    "Update command '{Command}' for '{Process}' exited with code {ExitCode}.",
+                    definition.UpdateCommandPath,
+                    definition.DisplayName,
+                    process.ExitCode);
+                NotifyError($"Update of '{definition.DisplayName}' exited with code {process.ExitCode}.");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Could not run update command for '{Process}'.", definition.DisplayName);
+            NotifyError($"Could not update '{definition.DisplayName}': {ex.Message}");
+        }
     }
 
     /// <summary>Builds the per-process "Open Project Folder" menu entry.</summary>

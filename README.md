@@ -37,7 +37,8 @@ sure you understand that behavior before use.
 - Lives in the notification area; no main window unless requested.
 - Right-click menu lists every configured process with status (Running, Stopped,
   Starting, Stopping, Exited, Failed) and per-process Start / Stop / Restart actions,
-  plus `Open Project Folder` to view its working directory in Explorer.
+  plus `Open Project Folder` to view its working directory in Explorer and `Update`
+  to run a configurable updater command with arguments.
 - Add, edit and delete process definitions (`.exe`, `.cmd`/`.bat`, `.ps1`) with
   arguments, working directory and start order.
 - Track PID, start time, exit code, uptime and last error for every process.

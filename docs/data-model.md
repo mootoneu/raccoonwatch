@@ -27,6 +27,8 @@ Status: Approved — reflects the implemented data model.
 | `CommandPath` | `string` | yes | Absolute path to `.exe` / `.cmd` / `.bat` / `.ps1`. |
 | `Arguments` | `string` | no | Appended to command; quoted by launcher helper. |
 | `WorkingDirectory` | `string` | no | Existing directory; defaults to command file directory. |
+| `UpdateCommandPath` | `string` | no | Updater to run from the tray `Update` action (`.exe`, `.cmd`/`.bat`, `.ps1`). |
+| `UpdateArguments` | `string` | no | Arguments appended to `UpdateCommandPath`. |
 | `StartOrder` | `int` | yes | Ascending order for Start All / autostart. |
 | `AutoStartOnLaunch` | `bool` | yes | Start when raccoonwatch starts (FR-8). |
 | `Notes` | `string` | no | Free text, not used at runtime. |
@@ -103,6 +105,8 @@ Example:
       "commandPath": "C:\\tools\\api.exe",
       "arguments": "--port 5000",
       "workingDirectory": "C:\\tools",
+      "updateCommandPath": "C:\\tools\\update.ps1",
+      "updateArguments": "-Force",
       "startOrder": 1,
       "autoStartOnLaunch": true,
       "notes": "Primary local API"

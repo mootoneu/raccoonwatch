@@ -31,6 +31,8 @@ public sealed class CoreTests : IDisposable
             CommandPath = @"C:\scripts\api.ps1",
             Arguments = "-Port 5000",
             WorkingDirectory = @"C:\scripts",
+            UpdateCommandPath = @"C:\scripts\update.ps1",
+            UpdateArguments = "-Force",
             StartOrder = 7,
             AutoStartOnLaunch = true,
             Notes = "local API"
@@ -46,6 +48,8 @@ public sealed class CoreTests : IDisposable
         Assert.Equal("API server", loaded.Processes[0].DisplayName);
         Assert.Equal(ProcessKind.PowerShell, loaded.Processes[0].Kind);
         Assert.True(loaded.Processes[0].AutoStartOnLaunch);
+        Assert.Equal(@"C:\scripts\update.ps1", loaded.Processes[0].UpdateCommandPath);
+        Assert.Equal("-Force", loaded.Processes[0].UpdateArguments);
         Assert.Equal(1500, loaded.PollIntervalMs);
     }
 
@@ -351,14 +355,82 @@ public sealed class CoreTests : IDisposable
     }
 
     [Theory]
+    [InlineData("update.exe", ProcessKind.Executable)]
+    [InlineData("update.msi", ProcessKind.Executable)]
+    [InlineData("update.cmd", ProcessKind.Cmd)]
+    [InlineData("update.bat", ProcessKind.Cmd)]
+    [InlineData("update.ps1", ProcessKind.PowerShell)]
+    public void UpdateCommandLauncher_InfersKindFromExtension(string path, ProcessKind expected) =>
+        Assert.Equal(expected, UpdateCommandLauncher.InferKind(path));
+
+    [Fact]
+    public void UpdateCommandLauncher_BuildsRunnableStartInfo()
+    {
+        var updater = Path.Combine(_directory, "my updater.ps1");
+        var startInfo = UpdateCommandLauncher.BuildStartInfo(updater, "-Force");
+
+        Assert.Contains("powershell.exe", startInfo.FileName, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains($"-File \"{updater}\" -Force", startInfo.Arguments);
+        Assert.Equal(_directory, startInfo.WorkingDirectory);
+        Assert.True(startInfo.UseShellExecute);
+        Assert.False(startInfo.RedirectStandardOutput);
+        Assert.False(startInfo.RedirectStandardError);
+
+        var script = Path.Combine(_directory, "update.cmd");
+        var scriptInfo = UpdateCommandLauncher.BuildStartInfo(script, "--yes");
+        Assert.Contains("cmd.exe", scriptInfo.FileName, StringComparison.OrdinalIgnoreCase);
+        Assert.StartsWith("/c ", scriptInfo.Arguments);
+        Assert.Contains($"\"{script}\" --yes", scriptInfo.Arguments);
+
+        var executable = Path.Combine(_directory, "updater.exe");
+        var exeInfo = UpdateCommandLauncher.BuildStartInfo(executable, "--silent");
+        Assert.Equal(executable, exeInfo.FileName);
+        Assert.Equal("--silent", exeInfo.Arguments);
+    }
+
+    [Fact]
+    public async Task UpdateCommandLauncher_LaunchesUpdaterProcess()
+    {
+        var script = Path.Combine(_directory, "update.cmd");
+        File.WriteAllText(script, "exit /b 0\r\n");
+
+        using var process = UpdateCommandLauncher.Launch(script, string.Empty);
+        await process.WaitForExitAsync();
+
+        Assert.Equal(0, process.ExitCode);
+    }
+
+    [Fact]
+    public void TrayMenu_IncludesUpdateActionForConfiguredProcess()
+    {
+        var definition = new ProcessDefinition
+        {
+            DisplayName = "Worker",
+            UpdateCommandPath = Path.Combine(_directory, "update.ps1"),
+            UpdateArguments = "-Force"
+        };
+
+        ProcessDefinition? updated = null;
+        var item = TrayApplicationContext.BuildUpdateItem(definition, process => updated = process);
+
+        Assert.Equal("Update", item.Text);
+        Assert.True(item.Enabled);
+        item.PerformClick();
+        Assert.Same(definition, updated);
+
+        var unconfigured = definition with { UpdateCommandPath = string.Empty };
+        var disabled = TrayApplicationContext.BuildUpdateItem(
+            unconfigured, _ => throw new InvalidOperationException("Disabled item must not run the updater."));
+        Assert.False(disabled.Enabled);
+        disabled.PerformClick();
+    }
+
+    [Theory]
     [InlineData(ProcessKind.Executable)]
     [InlineData(ProcessKind.Cmd)]
     [InlineData(ProcessKind.PowerShell)]
     public void ProcessEditForm_PreservesKindOfEditedProcess(ProcessKind kind)
     {
-        var store = new JsonSettingsStore(NullLogger<JsonSettingsStore>.Instance, Path.Combine(_directory, "settings.json"));
-        var settings = new SettingsService(store, NullLogger<SettingsService>.Instance);
-        settings.Load();
         var definition = new ProcessDefinition
         {
             DisplayName = "Worker",
@@ -366,16 +438,41 @@ public sealed class CoreTests : IDisposable
             CommandPath = Path.Combine(_directory, "worker.ps1")
         };
 
-        using var form = new ProcessEditForm(definition, settings);
-        var combo = GetKindCombo(form);
+        using var form = new ProcessEditForm(definition, CreateSettings());
+        var combo = GetFieldValue<ComboBox>(form, "_kind");
         _ = combo.Handle; // Force handle creation; the selection set beforehand must survive it.
 
         Assert.Equal(kind.ToString(), combo.SelectedItem);
     }
 
-    private static ComboBox GetKindCombo(ProcessEditForm form) =>
-        (ComboBox)typeof(ProcessEditForm)
-            .GetField("_kind", BindingFlags.Instance | BindingFlags.NonPublic)!
+    [Fact]
+    public void ProcessEditForm_PopulatesAndKeepsUpdateFields()
+    {
+        var definition = new ProcessDefinition
+        {
+            DisplayName = "Worker",
+            CommandPath = Path.Combine(_directory, "worker.ps1"),
+            UpdateCommandPath = Path.Combine(_directory, "update.ps1"),
+            UpdateArguments = "-Force"
+        };
+
+        using var form = new ProcessEditForm(definition, CreateSettings());
+
+        Assert.Equal(definition.UpdateCommandPath, GetFieldValue<TextBox>(form, "_updateCommand").Text);
+        Assert.Equal(definition.UpdateArguments, GetFieldValue<TextBox>(form, "_updateArguments").Text);
+    }
+
+    private SettingsService CreateSettings()
+    {
+        var store = new JsonSettingsStore(NullLogger<JsonSettingsStore>.Instance, Path.Combine(_directory, "settings.json"));
+        var settings = new SettingsService(store, NullLogger<SettingsService>.Instance);
+        settings.Load();
+        return settings;
+    }
+
+    private static T GetFieldValue<T>(ProcessEditForm form, string name) where T : class =>
+        (T)typeof(ProcessEditForm)
+            .GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!
             .GetValue(form)!;
 
     [Fact]

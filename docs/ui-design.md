@@ -52,9 +52,15 @@ Per-process submenu (example for Running):
 │ View Output…                    │
 │ Edit…                           │
 │ Open Project Folder             │
+│ Update                          │
 └─────────────────────────────────┘
 ```
 
+- `Update` runs the configured updater (`UpdateCommandPath` plus
+  `UpdateArguments`) as a one-off, visible process. The command kind is inferred from
+  its extension: `.exe` runs directly, `.cmd`/`.bat` via `cmd.exe /c`, `.ps1` via
+  PowerShell with `-ExecutionPolicy Bypass`. The item is disabled when no update
+  command is configured; a non-zero exit code raises a notification.
 - `Open Project Folder` opens the process's `WorkingDirectory` in Windows Explorer.
   When no working directory is configured, the command file's directory is used;
   the item is disabled when neither yields a path.
@@ -106,6 +112,8 @@ double-buffered, alternating row colors.
 │ Command path:  [C:\tools\api.exe       ][...]│
 │ Arguments:     [--port 5000               ]  │
 │ Working dir:   [C:\tools                ][...]│
+│ Update command:[C:\tools\update.ps1     ][...]│
+│ Update args:   [-Force                       ]│
 │ Start order:   [1]                           │
 │ ☑ Start this process when raccoonwatch starts│
 │ Notes:         [                            ]│

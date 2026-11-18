@@ -20,6 +20,8 @@ public sealed class ProcessEditForm : Form
     private readonly TextBox _command = new();
     private readonly TextBox _arguments = new();
     private readonly TextBox _workingDirectory = new();
+    private readonly TextBox _updateCommand = new();
+    private readonly TextBox _updateArguments = new();
     private readonly NumericUpDown _order = new() { Minimum = 0, Maximum = 10_000 };
     private readonly CheckBox _autoStart = new() { Text = "Start with raccoonwatch", AutoSize = true };
     private readonly TextBox _notes = new() { Multiline = true, Height = 64, ScrollBars = ScrollBars.Vertical };
@@ -46,7 +48,7 @@ public sealed class ProcessEditForm : Form
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
         MinimizeBox = false;
-        ClientSize = new Size(560, 520);
+        ClientSize = new Size(560, 580);
 
         PopulateFields();
         BuildUi();
@@ -68,6 +70,8 @@ public sealed class ProcessEditForm : Form
         _command.Text = _original.CommandPath;
         _arguments.Text = _original.Arguments;
         _workingDirectory.Text = _original.WorkingDirectory;
+        _updateCommand.Text = _original.UpdateCommandPath;
+        _updateArguments.Text = _original.UpdateArguments;
         _order.Value = Math.Clamp(_original.StartOrder, 0, 10_000);
         _autoStart.Checked = _original.AutoStartOnLaunch;
         _notes.Text = _original.Notes;
@@ -79,7 +83,7 @@ public sealed class ProcessEditForm : Form
         {
             Dock = DockStyle.Fill,
             ColumnCount = 3,
-            RowCount = 9,
+            RowCount = 11,
             Padding = new Padding(14)
         };
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 150));
@@ -110,6 +114,16 @@ public sealed class ProcessEditForm : Form
         AddLabel(layout, "Working directory:", row++);
         layout.Controls.Add(_workingDirectory, 1, row);
         layout.Controls.Add(CreateBrowseButton((_, _) => BrowseWorkingDirectory()), 2, row);
+        row++;
+
+        AddLabel(layout, "Update command:", row++);
+        layout.Controls.Add(_updateCommand, 1, row);
+        layout.Controls.Add(CreateBrowseButton((_, _) => BrowseUpdateCommand()), 2, row);
+        row++;
+
+        AddLabel(layout, "Update arguments:", row++);
+        layout.Controls.Add(_updateArguments, 1, row);
+        layout.SetColumnSpan(_updateArguments, 2);
         row++;
 
         AddLabel(layout, "Start order:", row++);
@@ -177,6 +191,20 @@ public sealed class ProcessEditForm : Form
         }
     }
 
+    private void BrowseUpdateCommand()
+    {
+        using var dialog = new OpenFileDialog
+        {
+            CheckFileExists = true,
+            Filter = "Update commands (*.exe;*.cmd;*.bat;*.ps1)|*.exe;*.cmd;*.bat;*.ps1|All files (*.*)|*.*"
+        };
+
+        if (dialog.ShowDialog(this) == DialogResult.OK)
+        {
+            _updateCommand.Text = dialog.FileName;
+        }
+    }
+
     private void BrowseWorkingDirectory()
     {
         using var dialog = new FolderBrowserDialog { SelectedPath = _workingDirectory.Text };
@@ -206,6 +234,8 @@ public sealed class ProcessEditForm : Form
             CommandPath = _command.Text.Trim(),
             Arguments = _arguments.Text.Trim(),
             WorkingDirectory = _workingDirectory.Text.Trim(),
+            UpdateCommandPath = _updateCommand.Text.Trim(),
+            UpdateArguments = _updateArguments.Text.Trim(),
             StartOrder = (int)_order.Value,
             AutoStartOnLaunch = _autoStart.Checked,
             Notes = _notes.Text.Trim()

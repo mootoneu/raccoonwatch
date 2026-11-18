@@ -11,6 +11,9 @@ Run against a build from `src/raccoonwatch/bin/Debug/net10.0-windows/raccoonwatc
 - [ ] Right-clicking shows Start All, Stop All, Manage Processes, Settings, About, Exit.
 - [ ] A process submenu's `Open Project Folder` opens its working directory in Explorer
       (or the command file's directory when the working directory is blank).
+- [ ] A process with an update command shows an enabled `Update` item; running it launches
+      `UpdateCommandPath` with `UpdateArguments` and reports a non-zero exit code.
+- [ ] A process without an update command shows a disabled `Update` item.
 - [ ] Launching a second instance does not create a second tray icon; it focuses Manage Processes.
 - [ ] About shows `Raccoon Watch`, the tagline, the 400 px artwork and the GitHub link with icon; clicking the link opens the repository.
 - [ ] Exit removes the tray icon and the process terminates.
@@ -21,7 +24,8 @@ Run against a build from `src/raccoonwatch/bin/Debug/net10.0-windows/raccoonwatc
 - [ ] Add a Cmd definition (`.cmd`/`.bat`) with arguments — row appears.
 - [ ] Add a PowerShell definition (`.ps1`) — row appears.
 - [ ] Duplicate display name, missing file and wrong extension each show inline errors and do not save.
-- [ ] Edit a definition and confirm the tray menu and settings.json reflect the change.
+- [ ] Edit a definition and confirm the tray menu and settings.json reflect the change,
+      including the update command and its arguments.
 - [ ] Move Up/Move Down changes start order and persists after restart.
 - [ ] Delete a stopped definition — confirmation appears and row disappears.
 - [ ] Delete a running definition — confirmation warns it will be stopped; process is stopped and removed.
