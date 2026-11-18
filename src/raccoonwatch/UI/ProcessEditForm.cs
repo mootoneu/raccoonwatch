@@ -15,8 +15,7 @@ public sealed class ProcessEditForm : Form
     private readonly TextBox _name = new();
     private readonly ComboBox _kind = new()
     {
-        DropDownStyle = ComboBoxStyle.DropDownList,
-        DataSource = Enum.GetNames<ProcessKind>()
+        DropDownStyle = ComboBoxStyle.DropDownList
     };
     private readonly TextBox _command = new();
     private readonly TextBox _arguments = new();
@@ -36,6 +35,10 @@ public sealed class ProcessEditForm : Form
     {
         _original = original;
         _settings = settings;
+
+        // Populate before setting the selection: a data-bound ComboBox discards a
+        // SelectedItem assigned before its handle is created (it resets to item 0).
+        _kind.Items.AddRange(Enum.GetNames<ProcessKind>());
 
         Text = original is null ? "raccoonwatch — Add Process" : "raccoonwatch — Edit Process";
         Icon = AppIcon.Create();

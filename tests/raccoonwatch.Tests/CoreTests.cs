@@ -1,4 +1,6 @@
 using System.Drawing;
+using System.Reflection;
+using System.Windows.Forms;
 using Microsoft.Extensions.Logging.Abstractions;
 using Raccoonwatch.Infrastructure;
 using Raccoonwatch.Models;
@@ -347,6 +349,34 @@ public sealed class CoreTests : IDisposable
         Assert.False(disabled.Enabled);
         disabled.PerformClick();
     }
+
+    [Theory]
+    [InlineData(ProcessKind.Executable)]
+    [InlineData(ProcessKind.Cmd)]
+    [InlineData(ProcessKind.PowerShell)]
+    public void ProcessEditForm_PreservesKindOfEditedProcess(ProcessKind kind)
+    {
+        var store = new JsonSettingsStore(NullLogger<JsonSettingsStore>.Instance, Path.Combine(_directory, "settings.json"));
+        var settings = new SettingsService(store, NullLogger<SettingsService>.Instance);
+        settings.Load();
+        var definition = new ProcessDefinition
+        {
+            DisplayName = "Worker",
+            Kind = kind,
+            CommandPath = Path.Combine(_directory, "worker.ps1")
+        };
+
+        using var form = new ProcessEditForm(definition, settings);
+        var combo = GetKindCombo(form);
+        _ = combo.Handle; // Force handle creation; the selection set beforehand must survive it.
+
+        Assert.Equal(kind.ToString(), combo.SelectedItem);
+    }
+
+    private static ComboBox GetKindCombo(ProcessEditForm form) =>
+        (ComboBox)typeof(ProcessEditForm)
+            .GetField("_kind", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .GetValue(form)!;
 
     [Fact]
     public async Task AppController_StartsOnlyAutostartProcessesAndMirrorsRegistry()
