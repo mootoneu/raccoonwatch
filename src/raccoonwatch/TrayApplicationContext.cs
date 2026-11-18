@@ -269,8 +269,44 @@ public sealed class TrayApplicationContext : ApplicationContext
             Enabled = state.Status == ProcessStatus.Running || _output.GetSnapshot(definition.Id).Count > 0
         });
         item.DropDownItems.Add(new ToolStripMenuItem("Edit…", null, (_, _) => ShowEdit(definition.Id)));
+        item.DropDownItems.Add(BuildOpenProjectFolderItem(definition, OpenProjectFolder));
 
         return item;
+    }
+
+    /// <summary>Builds the per-process "Open Project Folder" menu entry.</summary>
+    internal static ToolStripMenuItem BuildOpenProjectFolderItem(
+        ProcessDefinition definition, Action<string> openFolder)
+    {
+        ArgumentNullException.ThrowIfNull(definition);
+        ArgumentNullException.ThrowIfNull(openFolder);
+
+        var folder = ProjectFolderOpener.ResolveFolder(definition);
+        var item = new ToolStripMenuItem("Open Project Folder")
+        {
+            Enabled = folder is not null,
+            ToolTipText = folder ?? "No project folder is configured for this process."
+        };
+
+        if (folder is not null)
+        {
+            item.Click += (_, _) => openFolder(folder);
+        }
+
+        return item;
+    }
+
+    private void OpenProjectFolder(string folder)
+    {
+        try
+        {
+            ProjectFolderOpener.Open(folder);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Could not open project folder '{Folder}'.", folder);
+            NotifyError($"Could not open project folder '{folder}': {ex.Message}");
+        }
     }
 
     private async Task StartAllAsync()

@@ -291,6 +291,64 @@ public sealed class CoreTests : IDisposable
         Assert.Equal(expected, TrayGlyph.For(status));
 
     [Fact]
+    public void ProjectFolderOpener_ResolvesWorkingDirectoryWithCommandFolderFallback()
+    {
+        var commandPath = Path.Combine("tools", "api.exe");
+        var workingDirectory = Path.Combine("projects", "api");
+        var definition = new ProcessDefinition
+        {
+            CommandPath = commandPath,
+            WorkingDirectory = workingDirectory
+        };
+
+        Assert.Equal(workingDirectory, ProjectFolderOpener.ResolveFolder(definition));
+        Assert.Equal("tools", ProjectFolderOpener.ResolveFolder(definition with { WorkingDirectory = "  " }));
+        Assert.Null(ProjectFolderOpener.ResolveFolder(definition with
+        {
+            CommandPath = "api.exe",
+            WorkingDirectory = string.Empty
+        }));
+    }
+
+    [Fact]
+    public void ProjectFolderOpener_BuildsQuotedExplorerStartInfo()
+    {
+        var folder = Path.Combine(_directory, "my projects");
+        Directory.CreateDirectory(folder);
+
+        var startInfo = ProjectFolderOpener.BuildStartInfo(folder);
+
+        Assert.Equal("explorer.exe", startInfo.FileName);
+        Assert.Equal($"\"{folder}\"", startInfo.Arguments);
+        Assert.True(startInfo.UseShellExecute);
+    }
+
+    [Fact]
+    public void TrayMenu_IncludesOpenProjectFolderAction()
+    {
+        var folder = Path.Combine(_directory, "project");
+        var definition = new ProcessDefinition
+        {
+            CommandPath = Path.Combine(folder, "api.exe"),
+            WorkingDirectory = folder
+        };
+
+        string? openedFolder = null;
+        var item = TrayApplicationContext.BuildOpenProjectFolderItem(definition, path => openedFolder = path);
+
+        Assert.Equal("Open Project Folder", item.Text);
+        Assert.True(item.Enabled);
+        item.PerformClick();
+        Assert.Equal(folder, openedFolder);
+
+        var unconfigured = definition with { CommandPath = "api.exe", WorkingDirectory = string.Empty };
+        var disabled = TrayApplicationContext.BuildOpenProjectFolderItem(
+            unconfigured, _ => throw new InvalidOperationException("Disabled item must not open Explorer."));
+        Assert.False(disabled.Enabled);
+        disabled.PerformClick();
+    }
+
+    [Fact]
     public async Task AppController_StartsOnlyAutostartProcessesAndMirrorsRegistry()
     {
         var store = new JsonSettingsStore(NullLogger<JsonSettingsStore>.Instance, Path.Combine(_directory, "settings.json"));

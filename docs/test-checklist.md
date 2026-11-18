@@ -9,6 +9,8 @@ Run against a build from `src/raccoonwatch/bin/Debug/net10.0-windows/raccoonwatc
 - [ ] Tray tooltip reads `raccoonwatch — 0 running / 0 configured` on a fresh profile.
 - [ ] Double-clicking the icon opens Manage Processes.
 - [ ] Right-clicking shows Start All, Stop All, Manage Processes, Settings, About, Exit.
+- [ ] A process submenu's `Open Project Folder` opens its working directory in Explorer
+      (or the command file's directory when the working directory is blank).
 - [ ] Launching a second instance does not create a second tray icon; it focuses Manage Processes.
 - [ ] About shows `Raccoon Watch`, the tagline, the 400 px artwork and the GitHub link with icon; clicking the link opens the repository.
 - [ ] Exit removes the tray icon and the process terminates.

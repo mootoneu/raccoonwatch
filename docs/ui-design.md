@@ -51,9 +51,13 @@ Per-process submenu (example for Running):
 ├─────────────────────────────────┤
 │ View Output…                    │
 │ Edit…                           │
+│ Open Project Folder             │
 └─────────────────────────────────┘
 ```
 
+- `Open Project Folder` opens the process's `WorkingDirectory` in Windows Explorer.
+  When no working directory is configured, the command file's directory is used;
+  the item is disabled when neither yields a path.
 - For `Stopped`/`Exited`/`Failed`: Start enabled, Stop/Restart disabled.
 - For `Starting`/`Stopping`: Start/Stop/Restart disabled until transition completes.
 - Glyphs/colors: `●` green Running, `○` grey Stopped, `▲` amber Starting/Stopping,
