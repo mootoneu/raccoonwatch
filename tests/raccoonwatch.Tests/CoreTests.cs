@@ -296,6 +296,27 @@ public sealed class CoreTests : IDisposable
     public void TrayGlyph_IsStable(ProcessStatus status, string expected) =>
         Assert.Equal(expected, TrayGlyph.For(status));
 
+    [Theory]
+    [InlineData(ProcessStatus.Running)]
+    [InlineData(ProcessStatus.Stopped)]
+    [InlineData(ProcessStatus.Starting)]
+    [InlineData(ProcessStatus.Stopping)]
+    [InlineData(ProcessStatus.Exited)]
+    [InlineData(ProcessStatus.Failed)]
+    public void StatusIcons_AreEmbeddedAndLoadable(ProcessStatus status)
+    {
+        // Icons are cached for the app lifetime, so the test must not dispose them.
+        var icon = StatusIcons.For(status);
+
+        Assert.NotNull(icon);
+        Assert.Equal(16, icon.Width);
+        Assert.Equal(16, icon.Height);
+    }
+
+    [Fact]
+    public void StatusIcons_HaveNoIconForUnknown() =>
+        Assert.Null(StatusIcons.For(ProcessStatus.Unknown));
+
     [Fact]
     public void ProjectFolderOpener_ResolvesWorkingDirectoryWithCommandFolderFallback()
     {

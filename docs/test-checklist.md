@@ -8,6 +8,8 @@ Run against a build from `src/raccoonwatch/bin/Debug/net10.0-windows/raccoonwatc
 - [ ] The application starts with no main window; only the raccoon tray icon appears.
 - [ ] Tray tooltip reads `raccoonwatch — 0 running / 0 configured` on a fresh profile.
 - [ ] Double-clicking the icon opens Manage Processes.
+- [ ] Each process row in the tray menu shows the matching 16×16 status icon
+      (running/stopped/starting/stopping/exited/failed) beside its name.
 - [ ] Right-clicking shows Start All, Stop All, Manage Processes, Settings, About, Exit.
 - [ ] A process submenu's `Open Project Folder` opens its working directory in Explorer
       (or the command file's directory when the working directory is blank).

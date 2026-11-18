@@ -51,7 +51,7 @@ public sealed class TrayApplicationContext : ApplicationContext
             Icon = AppIcon.Create(),
             Text = "raccoonwatch",
             Visible = true,
-            ContextMenuStrip = new ContextMenuStrip { ShowImageMargin = false }
+            ContextMenuStrip = new ContextMenuStrip { ShowImageMargin = true }
         };
         _trayIcon.ContextMenuStrip.Opening += (_, _) => RebuildMenu(_trayIcon.ContextMenuStrip!);
         _trayIcon.DoubleClick += (_, _) => ShowManageProcesses();
@@ -225,7 +225,7 @@ public sealed class TrayApplicationContext : ApplicationContext
     {
         var state = _processes.GetState(definition.Id);
         var item = new ToolStripMenuItem(
-            $"{TrayGlyph.For(state.Status)}  {definition.DisplayName} — {state.Status}");
+            $"{definition.DisplayName} — {state.Status}", StatusIcons.For(state.Status));
 
         item.DropDownItems.Add(new ToolStripMenuItem($"Status: {state.Status}") { Enabled = false });
 

@@ -36,6 +36,18 @@
                       LogicalName="Raccoonwatch.assets.raccoonwatch_icon_1254x1254.png" />
     <EmbeddedResource Include="..\..\assets\github-mark.png"
                       LogicalName="Raccoonwatch.assets.github-mark.png" />
+    <EmbeddedResource Include="..\..\assets\status-exited.png"
+                      LogicalName="Raccoonwatch.assets.status-exited.png" />
+    <EmbeddedResource Include="..\..\assets\status-failed.png"
+                      LogicalName="Raccoonwatch.assets.status-failed.png" />
+    <EmbeddedResource Include="..\..\assets\status-running.png"
+                      LogicalName="Raccoonwatch.assets.status-running.png" />
+    <EmbeddedResource Include="..\..\assets\status-starting.png"
+                      LogicalName="Raccoonwatch.assets.status-starting.png" />
+    <EmbeddedResource Include="..\..\assets\status-stop.png"
+                      LogicalName="Raccoonwatch.assets.status-stop.png" />
+    <EmbeddedResource Include="..\..\assets\status-stopping.png"
+                      LogicalName="Raccoonwatch.assets.status-stopping.png" />
   </ItemGroup>
 
 </Project>

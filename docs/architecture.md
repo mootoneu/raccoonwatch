@@ -14,7 +14,7 @@ service layer.
 │ Presentation (WinForms, UI thread)                            │
 │  TrayApplicationContext · ManageProcessesForm ·               │
 │  ProcessEditForm · ProcessOutputForm · SettingsForm ·          │
-│  AboutForm · AnsiTextParser · TrayGlyph                       │
+│  AboutForm · AnsiTextParser · TrayGlyph · StatusIcons         │
 └───────────────┬──────────────────────────────────────────────┘
                 │ events / commands (marshalled to UI thread)
 ┌───────────────▼──────────────────────────────────────────────┐
@@ -47,7 +47,8 @@ D:\Projects\raccoonwatch\
 │   ├── raccoonwatch.ico        # generated from the PNGs below
 │   ├── raccoonwatch_icon_64x64.png
 │   ├── raccoonwatch_icon_1254x1254.png
-│   └── github-mark.png         # GitHub icon used in the About window
+│   ├── github-mark.png         # GitHub icon used in the About window
+│   └── status-*.png            # 16x16 status icons used in tray menu items
 ├── scripts\
 │   ├── generate-icon.ps1
 │   └── publish.ps1
@@ -59,7 +60,7 @@ D:\Projects\raccoonwatch\
 │       ├── Models\             # ProcessDefinition, AppSettings, enums, runtime state
 │       ├── Services\           # interfaces + implementations
 │       ├── Infrastructure\     # launcher, JSON store, registry, logging, AppIcon
-│       └── UI\                 # forms, ANSI parser, tray glyphs
+│       └── UI\                 # forms, ANSI parser, tray glyphs, status icons
 └── tests\
     └── raccoonwatch.Tests\     # xUnit
 ```
@@ -151,9 +152,10 @@ A process that exits within the first poll after launch with a non-zero code is 
   polling or debounce timer.
 - Absolute paths are stored (no environment variables expanded at save time beyond
   trimming); `%APPDATA%` is resolved via `Environment.GetFolderPath`.
-- The raccoon ICO, the 1254 px artwork and the GitHub mark are embedded as assembly
-  resources and loaded through `AppIcon` / `AboutForm`, so single-file publishes keep
-  the tray icon and About imagery.
+- The raccoon ICO, the 1254 px artwork, the GitHub mark and the 16×16 `status-*.png`
+  icons are embedded as assembly resources and loaded through `AppIcon` / `AboutForm`
+  / `StatusIcons`, so single-file publishes keep the tray icon, About imagery and
+  status icons.
 
 ## 8. Autostart
 

@@ -23,10 +23,10 @@ Status: Approved — reflects the implemented UI.
 
 ```
 ┌───────────────────────────────────────────┐
-│ ● API server — Running                ▶ │  ← submenu
-│ ○ Backup job — Stopped                ▶ │
-│ ▲ Worker — Starting                   ▶ │
-│ ✖ Legacy tool — Failed                ▶ │
+│ [icon] API server — Running             ▶ │  ← submenu
+│ [icon] Backup job — Stopped             ▶ │
+│ [icon] Worker — Starting                ▶ │
+│ [icon] Legacy tool — Failed             ▶ │
 ├───────────────────────────────────────────┤
 │ Start All                                 │
 │ Stop All                                  │
@@ -66,8 +66,10 @@ Per-process submenu (example for Running):
   the item is disabled when neither yields a path.
 - For `Stopped`/`Exited`/`Failed`: Start enabled, Stop/Restart disabled.
 - For `Starting`/`Stopping`: Start/Stop/Restart disabled until transition completes.
-- Glyphs/colors: `●` green Running, `○` grey Stopped, `▲` amber Starting/Stopping,
-  `✖` red Failed/Exited. Menu item text uses status suffix as shown.
+- Tray menu items use the embedded 16×16 `status-*.png` icons (green Running, red
+  Stopped, amber Starting, orange Stopping, pink Exited, red Failed) instead of text
+  glyphs; the status name remains in the item text. `Unknown` has no icon and is
+  text-only. The text glyphs are still used in the Manage Processes status column.
 - Entries are ordered by `StartOrder`, then name.
 - Double-click on the tray icon opens Manage Processes; single right-click opens menu.
 
