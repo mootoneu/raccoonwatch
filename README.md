@@ -48,6 +48,9 @@ sure you understand that behavior before use.
 - "Start with raccoonwatch" flag per process, honoring the configured start order.
 - Settings persisted as JSON in `%APPDATA%\raccoonwatch\settings.json`.
 - Single instance; double-clicking the tray icon opens the process manager.
+- Local control API (named pipe) with a companion `raccoonwatch-cli` to query status/uptime
+  and start, stop, restart or update processes from scripts — see
+  [`docs/control-api.md`](docs/control-api.md).
 
 ## What works now
 
@@ -74,6 +77,7 @@ Single-file publishing (framework-dependent and self-contained) is available thr
 - [Architecture and technical design](docs/architecture.md)
 - [Data model, settings schema and state machine](docs/data-model.md)
 - [UI design](docs/ui-design.md)
+- [Local control API and companion CLI](docs/control-api.md)
 - [Manual test checklist](docs/test-checklist.md)
 
 ## License
@@ -97,8 +101,17 @@ Publishing:
 ./scripts/publish.ps1 -SelfContained -Version 1.0.0 # self-contained single file + zip
 ```
 
-Output goes to `artifacts/publish/<runtime>/raccoonwatch.exe`; a zip is written to
+Output goes to `artifacts/publish/<runtime>/raccoonwatch.exe` (plus
+`raccoonwatch-cli.exe`); a zip containing both executables is written to
 `artifacts/raccoonwatch-<version>-<runtime>.zip` unless `-SkipZip` is used.
+
+To control a running instance from the command line:
+
+```powershell
+raccoonwatch-cli ping
+raccoonwatch-cli list
+raccoonwatch-cli start --id <guid>
+```
 
 ## Assets
 

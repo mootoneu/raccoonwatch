@@ -1,6 +1,8 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/raccoonwatch/raccoonwatch.csproj" />
+    <Project Path="src/raccoonwatch.Api/raccoonwatch.Api.csproj" />
+    <Project Path="src/raccoonwatch.Cli/raccoonwatch.Cli.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/raccoonwatch.Tests/raccoonwatch.Tests.csproj" />

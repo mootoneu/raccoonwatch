@@ -53,14 +53,17 @@ D:\Projects\raccoonwatch\
 │   ├── generate-icon.ps1
 │   └── publish.ps1
 ├── src\
-│   └── raccoonwatch\
-│       ├── raccoonwatch.csproj # net10.0-windows, UseWindowsForms, embedded icons
-│       ├── Program.cs          # entry point, DI, logging, single instance
-│       ├── TrayApplicationContext.cs
-│       ├── Models\             # ProcessDefinition, AppSettings, enums, runtime state
-│       ├── Services\           # interfaces + implementations
-│       ├── Infrastructure\     # launcher, JSON store, registry, logging, AppIcon
-│       └── UI\                 # forms, ANSI parser, tray glyphs, status icons
+│   ├── raccoonwatch\
+│   │   ├── raccoonwatch.csproj # net10.0-windows, UseWindowsForms, embedded icons
+│   │   ├── Program.cs          # entry point, DI, logging, single instance
+│   │   ├── TrayApplicationContext.cs
+│   │   ├── Api\                # request handler + update command runner (host side)
+│   │   ├── Models\             # ProcessDefinition, AppSettings, enums, runtime state
+│   │   ├── Services\           # interfaces + implementations
+│   │   ├── Infrastructure\     # launcher, JSON store, registry, logging, AppIcon
+│   │   └── UI\                 # forms, ANSI parser, tray glyphs, status icons
+│   ├── raccoonwatch.Api\       # shared wire protocol, named pipe server/client (net10.0)
+│   └── raccoonwatch.Cli\       # companion CLI executable (net10.0)
 └── tests\
     └── raccoonwatch.Tests\     # xUnit
 ```
@@ -80,6 +83,9 @@ D:\Projects\raccoonwatch\
 | `IAutostartService` | Reads/writes the HKCU Run value; reports path mismatch; no elevation. |
 | `IAppController` | Orchestration used by UI: initialize, start flagged processes in order, exit behavior (optionally stop tracked processes). |
 | Forms | `ManageProcessesForm` (DataGridView + Add/Edit/Delete/reorder), `ProcessEditForm`, `ProcessOutputForm` (ANSI colors, save), `SettingsForm`, `AboutForm`. All UI-thread only. |
+| `NamedPipeApiServer` / `ApiClient` | Local-only control API hosted on named pipe `raccoonwatch.api` (see `docs/control-api.md`). One JSON request/response line per connection; multi-instance pipe for concurrent callers. |
+| `ApiRequestHandler` | Maps API methods onto `ISettingsService`, `IProcessManager` and `IUpdateCommandRunner`; returns plain DTOs so it is UI-independent. |
+| `raccoonwatch-cli` | Console front end using `ApiClient`; supports human-readable and `--json-output` modes. |
 
 ## 4. Startup sequence
 
@@ -186,12 +192,17 @@ A process that exits within the first poll after launch with a non-zero code is 
   evaluated by raccoonwatch itself.
 - External output text is treated as untrusted data and never interpreted as commands
   or markup beyond ANSI color codes.
+- The control API uses a local named pipe with default ACLs (same user / administrators)
+  and no network listener. It deliberately exposes no operation that creates or edits a
+  process definition, so a caller cannot set an executable path and execute arbitrary code.
 
 ## 11. Testing strategy
 
 - **Unit (xUnit):** settings round-trip/corrupt-file recovery, argument quoting and
   command construction, `ProcessKind` detection, status transitions, output ring
-  buffer bounds, autostart value formatting (with an injectable registry abstraction).
+  buffer bounds, autostart value formatting (with an injectable registry abstraction),
+  and the control API (wire format, pipe client/server round trip, request dispatch, CLI
+  option parsing and uptime formatting) in `tests/raccoonwatch.Tests/ApiTests.cs`.
 - **Integration/manual:** launch sample `.exe`, `.cmd`, `.ps1`; start/stop/restart from
   tray; kill a process externally and observe `Exited`; open output viewer; toggle both
   autostart mechanisms; verify single instance and DPI scaling. The checklist is in

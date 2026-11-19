@@ -84,3 +84,14 @@ Run against a build from `src/raccoonwatch/bin/Debug/net10.0-windows/raccoonwatc
 - [ ] The published exe launches on a clean user profile with the correct tray icon.
 - [ ] The published exe can start/stop a sample process and save output.
 - [ ] The published exe shows artwork and GitHub icon in the About window (embedded resources).
+
+## 9. Local control API / companion CLI
+
+- [ ] With raccoonwatch running, `raccoonwatch-cli ping` prints `raccoonwatch is running.`
+- [ ] `raccoonwatch-cli list` lists every configured process with status, uptime and id.
+- [ ] `raccoonwatch-cli status --id <guid>` returns the matching process.
+- [ ] `start`, `stop` and `restart --id <guid>` change the process state in the tray as well.
+- [ ] `run-update --id <guid>` launches the configured updater command.
+- [ ] `--json-output` prints a raw JSON response that `ConvertFrom-Json` can parse.
+- [ ] With raccoonwatch closed, any command exits with code 1 and a `raccoonwatch is not running` message.
+- [ ] The published archive contains both `raccoonwatch.exe` and `raccoonwatch-cli.exe`.

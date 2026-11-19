@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Raccoonwatch;
+using Raccoonwatch.Api;
 using Raccoonwatch.Infrastructure;
 using Raccoonwatch.Services;
 using Raccoonwatch.UI;
@@ -60,7 +61,17 @@ internal static class Program
 
         provider.GetRequiredService<IAppController>().StartupAsync().GetAwaiter().GetResult();
 
-        Application.Run(context);
+        var apiServer = provider.GetRequiredService<NamedPipeApiServer>();
+        apiServer.StartAsync().GetAwaiter().GetResult();
+
+        try
+        {
+            Application.Run(context);
+        }
+        finally
+        {
+            apiServer.StopAsync().GetAwaiter().GetResult();
+        }
     }
 
     private static void ConfigureServices(IServiceCollection services, SingleInstanceGuard instanceGuard)
@@ -82,6 +93,13 @@ internal static class Program
         services.AddSingleton<IProcessManager, ProcessManager>();
         services.AddSingleton<IAutostartService, WindowsRunRegistry>();
         services.AddSingleton<IAppController, AppController>();
+        services.AddSingleton<IUpdateCommandRunner, UpdateCommandRunner>();
+        services.AddSingleton<IApiRequestHandler, ApiRequestHandler>();
+        services.AddSingleton(provider => new NamedPipeApiServer(
+            ApiProtocol.DefaultPipeName,
+            provider.GetRequiredService<IApiRequestHandler>(),
+            error => provider.GetRequiredService<ILogger<NamedPipeApiServer>>()
+                .LogError(error, "Local control API connection failed.")));
         services.AddSingleton<TrayApplicationContext>();
         services.AddTransient<SettingsForm>();
     }

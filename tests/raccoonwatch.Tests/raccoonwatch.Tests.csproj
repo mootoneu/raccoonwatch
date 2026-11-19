@@ -18,6 +18,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\raccoonwatch\raccoonwatch.csproj" />
+    <ProjectReference Include="..\..\src\raccoonwatch.Api\raccoonwatch.Api.csproj" />
+    <ProjectReference Include="..\..\src\raccoonwatch.Cli\raccoonwatch.Cli.csproj" />
   </ItemGroup>
 
   <ItemGroup>
