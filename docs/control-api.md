@@ -75,7 +75,7 @@ All commands that act on a single process take `--id <guid>`. Get the ids from `
 | `start --id <guid>` | Starts a process. |
 | `stop --id <guid>` | Stops a process. |
 | `restart --id <guid>` | Restarts a process. |
-| `run-update --id <guid>` | Runs the configured one-off update command for a process. |
+| `update --id <guid>` | Runs the configured one-off update command for a process. |
 
 ### Examples (PowerShell)
 
@@ -89,7 +89,7 @@ raccoonwatch-cli stop   --id 11111111-2222-3333-4444-555555555555
 raccoonwatch-cli restart --id 11111111-2222-3333-4444-555555555555
 
 # Run the configured updater command
-raccoonwatch-cli run-update --id 11111111-2222-3333-4444-555555555555
+raccoonwatch-cli update --id 11111111-2222-3333-4444-555555555555
 ```
 
 Process configuration can only be changed from the tray application's Manage Processes window.
@@ -119,7 +119,7 @@ Failure response:
 { "success": false, "error": "Process '...' was not found." }
 ```
 
-Methods: `ping`, `list`, `get_status`, `start`, `stop`, `restart`, `run_update`.
+Methods: `ping`, `list`, `get_status`, `start`, `stop`, `restart`, `update`.
 
 You can use any language that can open a Windows named pipe. For example, in PowerShell:
 
@@ -142,7 +142,7 @@ $pipe.Dispose()
   processes raccoonwatch already manages in the current user session.
 - Callers must be running as the same user as the raccoonwatch instance.
 - The API cannot create or edit process definitions; only commands already configured by the
-  user in the UI can be launched by `run-update`.
+  user in the UI can be launched by `update`.
 
 ## Troubleshooting
 

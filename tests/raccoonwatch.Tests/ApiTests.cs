@@ -155,7 +155,7 @@ public sealed class ApiTests
     }
 
     [Fact]
-    public async Task Handler_RunUpdate_ReportsUpdaterFailure()
+    public async Task Handler_Update_ReportsUpdaterFailure()
     {
         var id = Guid.NewGuid();
         var settings = new FakeSettings();
@@ -164,7 +164,7 @@ public sealed class ApiTests
         var handler = CreateHandler(settings, new FakeProcessManager(), runner);
 
         var response = await handler.HandleAsync(
-            new ApiRequest { Method = ApiMethods.RunUpdate, Id = id.ToString() });
+            new ApiRequest { Method = ApiMethods.Update, Id = id.ToString() });
 
         Assert.False(response.Success);
         Assert.Equal("Updater crashed.", response.Error);

@@ -91,7 +91,7 @@ Run against a build from `src/raccoonwatch/bin/Debug/net10.0-windows/raccoonwatc
 - [ ] `raccoonwatch-cli list` lists every configured process with status, uptime and id.
 - [ ] `raccoonwatch-cli status --id <guid>` returns the matching process.
 - [ ] `start`, `stop` and `restart --id <guid>` change the process state in the tray as well.
-- [ ] `run-update --id <guid>` launches the configured updater command.
+- [ ] `update --id <guid>` launches the configured updater command.
 - [ ] `--json-output` prints a raw JSON response that `ConvertFrom-Json` can parse.
 - [ ] With raccoonwatch closed, any command exits with code 1 and a `raccoonwatch is not running` message.
 - [ ] The published archive contains both `raccoonwatch.exe` and `raccoonwatch-cli.exe`.

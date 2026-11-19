@@ -31,7 +31,7 @@ internal static class Program
                 "start" => await ProcessActionAsync(ApiMethods.Start, options).ConfigureAwait(false),
                 "stop" => await ProcessActionAsync(ApiMethods.Stop, options).ConfigureAwait(false),
                 "restart" => await ProcessActionAsync(ApiMethods.Restart, options).ConfigureAwait(false),
-                "run-update" => await ProcessActionAsync(ApiMethods.RunUpdate, options).ConfigureAwait(false),
+                "update" => await ProcessActionAsync(ApiMethods.Update, options).ConfigureAwait(false),
                 "ping" => await SendAsync(new ApiRequest { Method = ApiMethods.Ping }, options).ConfigureAwait(false),
                 _ => Fail($"Unknown command '{args[0]}'. Run 'raccoonwatch-cli --help' for usage.")
             };
@@ -178,7 +178,7 @@ internal static class Program
               start --id <guid>            Start a process
               stop --id <guid>             Stop a process
               restart --id <guid>          Restart a process
-              run-update --id <guid>       Run the configured update command for a process
+              update --id <guid>           Run the configured update command for a process
               ping                         Check that the local API server is reachable
 
             Options:

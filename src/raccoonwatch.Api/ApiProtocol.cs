@@ -12,7 +12,7 @@ public static class ApiMethods
     public const string Start = "start";
     public const string Stop = "stop";
     public const string Restart = "restart";
-    public const string RunUpdate = "run_update";
+    public const string Update = "update";
 }
 
 /// <summary>

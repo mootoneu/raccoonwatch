@@ -43,7 +43,7 @@ public sealed class ApiRequestHandler(
                 async (definition, token) => FromResult(
                     await processes.RestartAsync(definition).ConfigureAwait(false), definition),
                 cancellationToken),
-            ApiMethods.RunUpdate => WithProcess(
+            ApiMethods.Update => WithProcess(
                 request.Id,
                 async (definition, token) =>
                 {
