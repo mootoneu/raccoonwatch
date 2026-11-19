@@ -9,6 +9,9 @@ listens on the network. The pipe is created with the default security descriptor
 interactive user (and administrators) can connect. This matches the existing single-instance
 IPC (`raccoonwatch.ipc`) already used by the tray application.
 
+> For a Python 3 service (for example one hosted by `http.server.ThreadingHTTPServer`), see
+> [Integrating a Python 3 service with the CLI](python-integration.md).
+
 ## Contents
 
 - [Architecture](#architecture)

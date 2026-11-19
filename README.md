@@ -80,6 +80,7 @@ Single-file publishing (framework-dependent and self-contained) is available thr
 - [Data model, settings schema and state machine](docs/data-model.md)
 - [UI design](docs/ui-design.md)
 - [Local control API and companion CLI](docs/control-api.md)
+- [Integrating a Python 3 service with the CLI](docs/python-integration.md)
 - [Manual test checklist](docs/test-checklist.md)
 
 ## License
