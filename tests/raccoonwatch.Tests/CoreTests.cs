@@ -37,7 +37,13 @@ public sealed class CoreTests : IDisposable
             AutoStartOnLaunch = true,
             Notes = "local API"
         };
-        var settings = new AppSettings { Processes = [definition], PollIntervalMs = 1500 };
+        var settings = new AppSettings
+        {
+            Processes = [definition],
+            PollIntervalMs = 1500,
+            FastPollIntervalMs = 300,
+            FastPollWindowMs = 45_000
+        };
 
         store.Save(settings);
         var loaded = store.Load();
@@ -51,6 +57,8 @@ public sealed class CoreTests : IDisposable
         Assert.Equal(@"C:\scripts\update.ps1", loaded.Processes[0].UpdateCommandPath);
         Assert.Equal("-Force", loaded.Processes[0].UpdateArguments);
         Assert.Equal(1500, loaded.PollIntervalMs);
+        Assert.Equal(300, loaded.FastPollIntervalMs);
+        Assert.Equal(45_000, loaded.FastPollWindowMs);
     }
 
     [Fact]
@@ -64,6 +72,8 @@ public sealed class CoreTests : IDisposable
 
         Assert.Empty(settings.Processes);
         Assert.Equal(2000, settings.PollIntervalMs);
+        Assert.Equal(250, settings.FastPollIntervalMs);
+        Assert.Equal(120_000, settings.FastPollWindowMs);
         Assert.True(File.Exists(path + ".bad"));
         Assert.True(File.Exists(path));
     }
@@ -102,6 +112,7 @@ public sealed class CoreTests : IDisposable
         var path = Path.Combine(_directory, "settings.json");
         File.WriteAllText(path, """
             {"schemaVersion":1,"processes":[],"pollIntervalMs":10,
+             "fastPollIntervalMs":5,"fastPollWindowMs":99999999,
              "outputHistoryLines":1,"logLevel":"nonsense"}
             """);
 
@@ -110,6 +121,8 @@ public sealed class CoreTests : IDisposable
         service.Load();
 
         Assert.Equal(250, service.Settings.PollIntervalMs);
+        Assert.Equal(250, service.Settings.FastPollIntervalMs);
+        Assert.Equal(3_600_000, service.Settings.FastPollWindowMs);
         Assert.Equal(100, service.Settings.OutputHistoryLines);
         Assert.Equal("Information", service.Settings.LogLevel);
         Assert.False(File.Exists(path + ".tmp"));

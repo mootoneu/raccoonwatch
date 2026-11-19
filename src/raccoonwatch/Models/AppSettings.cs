@@ -7,7 +7,13 @@ public sealed class AppSettings
 
     public List<ProcessDefinition> Processes { get; set; } = [];
 
-    public int PollIntervalMs { get; set; } = 2000;
+    public int PollIntervalMs { get; set; } = 5000;
+
+    /// <summary>Interval used for a short while after a Start/Stop/Restart action.</summary>
+    public int FastPollIntervalMs { get; set; } = 250;
+
+    /// <summary>How long fast polling stays active after a Start/Stop/Restart action.</summary>
+    public int FastPollWindowMs { get; set; } = 120_000;
 
     public int OutputHistoryLines { get; set; } = 5000;
 

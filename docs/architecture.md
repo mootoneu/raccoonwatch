@@ -78,6 +78,7 @@ D:\Projects\raccoonwatch\
 | `ISettingsService` | Load/save `AppSettings`; validate and normalize definitions; raise `Changed`; atomic writes on explicit save. |
 | `JsonSettingsStore` | Schema-versioned serialize/deserialize with `System.Text.Json`; atomic temp-file + `File.Move(overwrite)`; creates defaults and backups on corrupt file. |
 | `IProcessManager` | Authoritative runtime state for definitions: start, stop, restart, start/stop all; periodic polling; emits `StateChanged`. |
+| `IPollingIntervalProvider` | Chooses the poll interval. Accelerates to the short interval for a configurable window after a user action, using a monotonic clock. |
 | `ProcessLauncher` | Builds `ProcessStartInfo` per `ProcessKind`; creates `Process` objects with redirected stdout/stderr; returns a handle used by the manager. |
 | `IOutputStore` | Bounded per-process ring buffers (5,000 lines default); thread-safe lock-based append; emits batched `OutputReceived` events every ~100 ms; provides snapshot for late viewers. |
 | `IAutostartService` | Reads/writes the HKCU Run value; reports path mismatch; no elevation. |
@@ -106,7 +107,10 @@ D:\Projects\raccoonwatch\
 - `IProcessManager` runs a `Task.Delay`-based polling loop (default 2 s, re-read from
   settings each iteration) on a background task. It
   only touches `Process` objects and runtime state; it raises events with immutable
-  snapshots.
+  snapshots. `IPollingIntervalProvider` temporarily shortens the delay to
+  `FastPollIntervalMs` (default 250 ms) for `FastPollWindowMs` (default 2 min) after a
+  Start/Stop/Restart, then returns to the normal interval; the monotonic clock used for the
+  window is injectable so the behavior is unit-testable.
 - Services marshal UI-bound events through `SynchronizationContext` captured at startup
   (or `BeginInvoke` on the context's control). No service ever calls a form directly.
 - Output capture uses async line reads (`BeginOutputReadLine`/`OutputDataReceived`).

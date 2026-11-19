@@ -64,8 +64,13 @@ Run against a build from `src/raccoonwatch/bin/Debug/net10.0-windows/raccoonwatc
 
 ## 6. Settings, persistence, resilience
 
-- [ ] Change polling interval, history size, notifications and log level; Apply persists to settings.json.
-- [ ] Restart the app; all settings are restored.
+- [ ] Change polling interval, fast polling interval (250–60,000 ms), fast polling window
+      (0–3,600,000 ms), history size, notifications and log level; Apply persists to settings.json.
+- [ ] Start a process; status advances Starting → Running within roughly 250 ms instead of the
+      normal 2 s interval, and reverts to the normal interval after the 120 s window.
+- [ ] Trigger another action during the window; another 120 s of fast polling begins.
+- [ ] Set the fast window to 0; status updates only at the normal interval.
+- [ ] Restart the app; all settings are restored and polling starts at the normal interval.
 - [ ] Corrupt settings.json manually; app starts with defaults and creates settings.json.bad.
 - [ ] Logs appear under `%LOCALAPPDATA%\raccoonwatch\logs\` and respect the selected level.
 - [ ] "Open log folder" opens that directory in Explorer.

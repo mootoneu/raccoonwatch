@@ -42,6 +42,8 @@ sure you understand that behavior before use.
 - Add, edit and delete process definitions (`.exe`, `.cmd`/`.bat`, `.ps1`) with
   arguments, working directory and start order.
 - Track PID, start time, exit code, uptime and last error for every process.
+- Adaptive polling: status is checked every 250 ms (default) for 2 minutes (default)
+  after a Start/Stop/Restart, then returns to the normal 2 s interval.
 - Terminal-like output viewer with stdout/stderr coloring, ANSI colors, follow-tail,
   pause, clear and save-to-file.
 - "Start raccoonwatch with Windows" toggle (per-user HKCU Run registry entry).

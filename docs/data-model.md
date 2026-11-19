@@ -48,13 +48,22 @@ Status: Approved — reflects the implemented data model.
 
 `Uptime` is computed as `DateTimeOffset.Now - StartedAt` while Running.
 
+Status polling is adaptive: `IProcessManager` calls `IPollingIntervalProvider.NotifyActivity()`
+on every Start/Stop/Restart. For the following `FastPollWindowMs` the monitor loop uses
+`FastPollIntervalMs` instead of `PollIntervalMs`; each further action extends the window.
+The provider never returns an interval slower than `PollIntervalMs`, so a misconfigured fast
+interval cannot make detection worse. Only durations are stored — the activity deadline is
+in-memory and resets when raccoonwatch restarts.
+
 ### 1.5 `AppSettings` (persisted)
 
 | Property | Type | Default | Notes |
 |---|---|---|---|
 | `SchemaVersion` | `int` | `1` | For forward migration. |
 | `Processes` | `List<ProcessDefinition>` | `[]` | Ordered by `StartOrder` when used. |
-| `PollIntervalMs` | `int` | `2000` | Status polling; min 250, max 60,000. |
+| `PollIntervalMs` | `int` | `2000` | Normal status polling; min 250, max 60,000. |
+| `FastPollIntervalMs` | `int` | `250` | Polling interval used briefly after Start/Stop/Restart; min 250, max 60,000. |
+| `FastPollWindowMs` | `int` | `120000` | How long fast polling stays active after an action; min 0 (disabled), max 3,600,000. |
 | `OutputHistoryLines` | `int` | `5000` | Ring buffer size per process; min 100. |
 | `ShowNotifications` | `bool` | `true` | Tray balloon on failures. |
 | `LogLevel` | `string` | `"Information"` | Trace/Debug/Information/Warning/Error. |
@@ -124,6 +133,8 @@ Example:
     }
   ],
   "pollIntervalMs": 2000,
+  "fastPollIntervalMs": 250,
+  "fastPollWindowMs": 120000,
   "outputHistoryLines": 5000,
   "showNotifications": true,
   "logLevel": "Information",

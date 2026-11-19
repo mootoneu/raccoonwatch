@@ -89,6 +89,9 @@ processes it started itself.
   `Failed` (see [data-model.md](data-model.md) for the state machine).
 - FR-4.2 The application polls tracked processes at a configurable interval
   (default 2 s) and updates status when a process exits.
+- FR-4.2a For `FastPollWindowMs` (default 120 s) after a Start, Stop or Restart the
+  polling interval becomes `FastPollIntervalMs` (default 250 ms). Each further action
+  restarts the window; afterwards polling returns to `PollIntervalMs`.
 - FR-4.3 For every process, the runtime state stores PID, start time, exit code/time,
   uptime (computed), last error message and a count of restarts in this session.
 - FR-4.4 `Exited` is distinct from `Stopped`: `Exited` means the process terminated on
@@ -145,9 +148,9 @@ processes it started itself.
 ### FR-9 — Settings and persistence
 
 - FR-9.1 Settings are stored as JSON at `%APPDATA%\raccoonwatch\settings.json` and
-  include: process definitions, polling interval, output history size, notification
-  preference, log level, "stop tracked processes on exit" flag, and the app autostart
-  preference mirror.
+  include: process definitions, normal polling interval, fast polling interval and
+  fast polling window, output history size, notification preference, log level,
+  "stop tracked processes on exit" flag, and the app autostart preference mirror.
 - FR-9.2 Writes are atomic (write temporary file, then replace) so a crash cannot
   corrupt the file. A missing/corrupt file is recreated with defaults and reported.
 - FR-9.3 Settings are saved immediately when the user confirms a dialog; there is no
@@ -176,7 +179,8 @@ processes it started itself.
 - **NFR-2 Footprint:** idle CPU ~0%, working set kept modest (< ~150 MB typical);
   output buffers bounded.
 - **NFR-3 Responsiveness:** tray menu opens immediately; status changes appear within
-  one polling interval; UI never blocks on process I/O.
+  one polling interval (250 ms during the short fast-polling window that follows a
+  Start/Stop/Restart); UI never blocks on process I/O.
 - **NFR-4 Security/permissions:** no elevation; only HKCU registry writes; PowerShell
   launched with `-NoProfile -ExecutionPolicy Bypass` for the target script only; no
   secrets stored in settings.

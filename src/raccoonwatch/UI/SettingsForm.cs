@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Microsoft.Extensions.Logging;
 using Raccoonwatch.Infrastructure;
+using Raccoonwatch.Models;
 using Raccoonwatch.Services;
 
 namespace Raccoonwatch.UI;
@@ -20,7 +21,18 @@ public sealed class SettingsForm : Form
     private readonly Button _repair = new() { Text = "Repair", Width = 70, Height = 28, Visible = false };
     private readonly CheckBox _stopOnExit = new() { Text = "Stop tracked processes when raccoonwatch exits", AutoSize = true };
     private readonly CheckBox _notifications = new() { Text = "Show notifications on failures", AutoSize = true };
-    private readonly NumericUpDown _pollInterval = new() { Minimum = 250, Maximum = 60_000, Increment = 250, Width = 100 };
+    private readonly NumericUpDown _pollInterval = new()
+    {
+        Minimum = PollingLimits.MinIntervalMs, Maximum = PollingLimits.MaxIntervalMs, Increment = 250, Width = 100
+    };
+    private readonly NumericUpDown _fastPollInterval = new()
+    {
+        Minimum = PollingLimits.MinIntervalMs, Maximum = PollingLimits.MaxIntervalMs, Increment = 250, Width = 100
+    };
+    private readonly NumericUpDown _fastPollWindow = new()
+    {
+        Minimum = 0, Maximum = PollingLimits.MaxWindowMs, Increment = 5000, Width = 100
+    };
     private readonly NumericUpDown _historyLines = new() { Minimum = 100, Maximum = 100_000, Increment = 500, Width = 100 };
     private readonly ComboBox _logLevel = new()
     {
@@ -46,7 +58,7 @@ public sealed class SettingsForm : Form
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
         MinimizeBox = false;
-        ClientSize = new Size(520, 350);
+        ClientSize = new Size(520, 400);
 
         BuildUi();
         LoadSettings();
@@ -65,7 +77,7 @@ public sealed class SettingsForm : Form
         {
             Dock = DockStyle.Fill,
             ColumnCount = 3,
-            RowCount = 9,
+            RowCount = 11,
             Padding = new Padding(16),
             AutoSize = true
         };
@@ -90,6 +102,12 @@ public sealed class SettingsForm : Form
         row++;
         layout.Controls.Add(new Label { Text = "Status polling interval (ms):", AutoSize = true }, 0, row);
         layout.Controls.Add(_pollInterval, 1, row);
+        row++;
+        layout.Controls.Add(new Label { Text = "Fast polling interval after an action (ms):", AutoSize = true }, 0, row);
+        layout.Controls.Add(_fastPollInterval, 1, row);
+        row++;
+        layout.Controls.Add(new Label { Text = "Fast polling duration after an action (ms):", AutoSize = true }, 0, row);
+        layout.Controls.Add(_fastPollWindow, 1, row);
         row++;
         layout.Controls.Add(new Label { Text = "Output history per process (lines):", AutoSize = true }, 0, row);
         layout.Controls.Add(_historyLines, 1, row);
@@ -141,6 +159,8 @@ public sealed class SettingsForm : Form
         _stopOnExit.Checked = current.StopProcessesOnExit;
         _notifications.Checked = current.ShowNotifications;
         _pollInterval.Value = current.PollIntervalMs;
+        _fastPollInterval.Value = current.FastPollIntervalMs;
+        _fastPollWindow.Value = current.FastPollWindowMs;
         _historyLines.Value = current.OutputHistoryLines;
         _logLevel.SelectedItem = current.LogLevel;
 
@@ -208,6 +228,8 @@ public sealed class SettingsForm : Form
             current.ShowNotifications = _notifications.Checked;
             current.StopProcessesOnExit = _stopOnExit.Checked;
             current.PollIntervalMs = (int)_pollInterval.Value;
+            current.FastPollIntervalMs = (int)_fastPollInterval.Value;
+            current.FastPollWindowMs = (int)_fastPollWindow.Value;
             current.OutputHistoryLines = (int)_historyLines.Value;
             current.LogLevel = _logLevel.SelectedItem?.ToString() ?? "Information";
 

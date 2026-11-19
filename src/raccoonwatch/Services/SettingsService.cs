@@ -130,7 +130,11 @@ public sealed class SettingsService(JsonSettingsStore store, ILogger<SettingsSer
     {
         settings.SchemaVersion = 1;
         settings.Processes ??= [];
-        settings.PollIntervalMs = Math.Clamp(settings.PollIntervalMs, 250, 60_000);
+        settings.PollIntervalMs = Math.Clamp(
+            settings.PollIntervalMs, PollingLimits.MinIntervalMs, PollingLimits.MaxIntervalMs);
+        settings.FastPollIntervalMs = Math.Clamp(
+            settings.FastPollIntervalMs, PollingLimits.MinIntervalMs, PollingLimits.MaxIntervalMs);
+        settings.FastPollWindowMs = Math.Clamp(settings.FastPollWindowMs, 0, PollingLimits.MaxWindowMs);
         settings.OutputHistoryLines = Math.Clamp(settings.OutputHistoryLines, 100, 100_000);
 
         if (!Enum.TryParse<Microsoft.Extensions.Logging.LogLevel>(

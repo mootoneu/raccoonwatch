@@ -88,6 +88,8 @@ internal static class Program
 
         services.AddSingleton<JsonSettingsStore>();
         services.AddSingleton<ISettingsService, SettingsService>();
+        services.AddSingleton<IPollingIntervalProvider>(provider =>
+            new PollingIntervalProvider(provider.GetRequiredService<ISettingsService>()));
         services.AddSingleton<IProcessLauncher, ProcessLauncher>();
         services.AddSingleton<IOutputStore, OutputStore>();
         services.AddSingleton<IProcessManager, ProcessManager>();

@@ -14,6 +14,7 @@ public sealed class ProcessManager : IProcessManager
     private readonly IProcessLauncher _launcher;
     private readonly IOutputStore _outputStore;
     private readonly ISettingsService _settings;
+    private readonly IPollingIntervalProvider _polling;
     private readonly ILogger<ProcessManager> _logger;
     private readonly ConcurrentDictionary<Guid, TrackedProcess> _tracked = new();
     private readonly ConcurrentDictionary<Guid, SemaphoreSlim> _gates = new();
@@ -25,11 +26,13 @@ public sealed class ProcessManager : IProcessManager
         IProcessLauncher launcher,
         IOutputStore outputStore,
         ISettingsService settings,
+        IPollingIntervalProvider polling,
         ILogger<ProcessManager> logger)
     {
         _launcher = launcher;
         _outputStore = outputStore;
         _settings = settings;
+        _polling = polling;
         _logger = logger;
         _monitorTask = Task.Run(MonitorLoopAsync);
     }
@@ -47,6 +50,7 @@ public sealed class ProcessManager : IProcessManager
     public async Task<ProcessResult> StartAsync(ProcessDefinition definition)
     {
         ArgumentNullException.ThrowIfNull(definition);
+        _polling.NotifyActivity();
 
         var gate = GetGate(definition.Id);
         await gate.WaitAsync();
@@ -119,6 +123,8 @@ public sealed class ProcessManager : IProcessManager
 
     public async Task<ProcessResult> StopAsync(Guid definitionId)
     {
+        _polling.NotifyActivity();
+
         var gate = GetGate(definitionId);
         await gate.WaitAsync();
         try
@@ -193,6 +199,9 @@ public sealed class ProcessManager : IProcessManager
 
     public async Task<ProcessResult> RestartAsync(ProcessDefinition definition)
     {
+        ArgumentNullException.ThrowIfNull(definition);
+        _polling.NotifyActivity();
+
         _restartCounts.AddOrUpdate(definition.Id, 1, (_, count) => count + 1);
         _outputStore.AddSeparator(
             definition.Id,
@@ -331,7 +340,7 @@ public sealed class ProcessManager : IProcessManager
     {
         while (!_cancellation.IsCancellationRequested)
         {
-            var interval = Math.Clamp(_settings.Settings.PollIntervalMs, 250, 60_000);
+            var interval = _polling.GetIntervalMs();
             try
             {
                 await Task.Delay(interval, _cancellation.Token);

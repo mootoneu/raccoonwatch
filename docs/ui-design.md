@@ -167,6 +167,8 @@ double-buffered, alternating row colors.
 │ ☐ Stop tracked processes when exiting        │
 │ ☑ Show notifications on failures             │
 │ Status polling interval: [2000] ms           │
+│ Fast polling after action: [250] ms          │
+│ Fast polling duration: [120000] ms           │
 │ Output history per process: [5000] lines     │
 │ Log level: [Information ▼]  [Open log folder]│
 │                         [Apply] [OK] [Cancel]│
@@ -175,7 +177,11 @@ double-buffered, alternating row colors.
 
 - Registry state is the source of truth for the autostart checkbox; a mismatched path
   shows a repair link.
-- Changing polling/history takes effect immediately (history re-bounds buffers).
+- Changing polling/history takes effect immediately (history re-bounds buffers; the
+  normal interval is re-read by the monitor loop each iteration, and the next
+  Start/Stop/Restart uses the new fast interval and window).
+- Fast polling only applies for a limited time after a process action; it then falls back
+  to the normal interval so idle CPU usage stays negligible.
 
 ## 8. About window
 
